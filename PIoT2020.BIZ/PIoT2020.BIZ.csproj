@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PIoT2020.COMMON\PIoT2020.COMMON.csproj" />
+    <ProjectReference Include="..\PIoT2020.DAL.API\PIoT2020.DAL.API.csproj" />
+    <ProjectReference Include="..\PIoT2020.DAL\PIoT2020.DAL.csproj" />
+  </ItemGroup>
+
+</Project>

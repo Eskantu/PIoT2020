@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PIoT2020.COMMON\PIoT2020.COMMON.csproj" />
+    <ProjectReference Include="..\PIoT2020.DAL.API\PIoT2020.DAL.API.csproj" />
+  </ItemGroup>
+
+</Project>

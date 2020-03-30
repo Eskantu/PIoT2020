@@ -1,0 +1,68 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime;
+
+
+@code{
+    LoginModel loginModel = new LoginModel();
+    void Login()
+    {
+        var user = PIoT2020.Shared.Tools.Tools.factoryManager._usuarioManager;
+        if (user.Login(loginModel.UsuarioName, loginModel.Password) is Usuario userResult)
+        {
+            if (PIoT2020.Shared.Tools.Tools.factoryManager._tipoUsuarioManager.BuscarPorId(userResult.TipoUsuario).Name == "Cliente")
+            {
+                NavigationManager.NavigateTo("/DashboardCliente", true);
+
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/DashboardAdministrador", true);
+            }
+        }
+        else
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Usuario no encontrado");
+        }
+
+    }
+
+}
+<img class="wave" src="img/wave.png">
+<div class="container">
+    <div class="img">
+        <img src="img/bg.svg">
+    </div>
+    <div class="login-content">
+        <EditForm Model="@loginModel" OnSubmit="Login">
+            <DataAnnotationsValidator />
+            <ValidationSummary Model="@loginModel" />
+            <img src="img/avatar.svg">
+            <h2 class="title">Bienvenido</h2>
+            <div class="input-div one">
+                <div class="i">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="div">
+                    <!--
+                    <h5>usuario</h5>
+                    -->
+                    <InputText @bind-Value="@loginModel.UsuarioName" placeholder="usuario" class="input" />
+                </div>
+            </div>
+            <div class="input-div pass">
+                <div class="i">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="div">
+                    <!--
+                    <h5>contraseña</h5>
+                    -->
+                    <InputText @bind-Value="@loginModel.Password" placeholder="contraseña" type="password" class="input" />
+                </div>
+            </div>
+            <a href="#">registro nuevo usuario</a>
+            <button type="submit" class="btn">Login</button>
+        </EditForm>
+    </div>
+</div>
