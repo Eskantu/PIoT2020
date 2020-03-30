@@ -3,14 +3,48 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
              mc:Ignorable="d"
-             x:Class="PIoT2020.Movil.MainPage">
+             x:Class="PIoT2020.Movil.MainPage" NavigationPage.HasNavigationBar="False" >
 
-    <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" 
-           HorizontalOptions="Center"
-           VerticalOptions="CenterAndExpand" />
-    </StackLayout>
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Grid.ColumnSpan="7" Grid.Row="0" Text="Inicio de sesion" FontAttributes="Bold" TextColor="Black" FontSize="Title" Margin="0,10,0,0" HorizontalOptions="CenterAndExpand"/>
+            <material:MaterialCard  Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="1" Grid.RowSpan="3" WidthRequest="20" CornerRadius="10" Elevation="2" HeightRequest="80">
+            </material:MaterialCard>
+            <Image Grid.Column="0" Grid.ColumnSpan="7" Grid.Row="0" Grid.RowSpan="7" VerticalOptions="EndAndExpand" Source="bg.png"/>
+            <Image Grid.Column="0" Grid.ColumnSpan="7" Grid.Row="0" Grid.RowSpan="6" Source="Logomovil.png" IsOpaque="False" Opacity="0.25"/>
+            <StackLayout Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="1" Grid.RowSpan="3">
+                <material:MaterialTextField BackgroundColor="Transparent" Margin="0,40,0,0" FloatingPlaceholderColor="Black" FloatingPlaceholderEnabled="True" Placeholder="usuario" ErrorText="usuario incorrecto" AlwaysShowUnderline="True" TintColor="Black" WidthRequest="200"  HorizontalOptions="Center" InputType="Default" />
+                <material:MaterialTextField BackgroundColor="Transparent" Margin="0,10,0,0" FloatingPlaceholderColor="Black" FloatingPlaceholderEnabled="True" Placeholder="contraseña" ErrorText="usuario incorrecto" AlwaysShowUnderline="True" TintColor="Black" WidthRequest="200"  HorizontalOptions="Center" InputType="Password" />
+                <material:MaterialButton Text="Registrarse" ButtonType="Text" TextColor="#0ED2AA" FontSize="Small" FontAttributes="None" PressedBackgroundColor="Transparent" />
+            </StackLayout>
+            <material:MaterialButton ImageSource="user.png" Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="2" Margin="0,30,0,0" WidthRequest="80" HeightRequest     ="80"
+    CornerRadius      ="40"
+    VerticalOptions   ="Center"
+    HorizontalOptions ="Center"
+    BackgroundColor   ="White" ></material:MaterialButton>
+            <material:MaterialButton ImageSource="arrow.png" Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="3"  VerticalOptions   ="Center" HorizontalOptions ="Center" Grid.RowSpan="2" CornerRadius="50" HeightRequest="50" WidthRequest="600" BackgroundColor="#0ED2AA"/>
+
+        </Grid>
+    </ContentPage.Content>
 
 </ContentPage>

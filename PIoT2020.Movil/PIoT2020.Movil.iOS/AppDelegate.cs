@@ -24,6 +24,7 @@ namespace PIoT2020.Movil.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             XF.Material.iOS.Material.Init();
+            global::Xamarin.Forms.FormsMaterial.Init();
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
