@@ -44,8 +44,6 @@ namespace PIoT2020.DAL.API
             return BuscarPorId(id).Result;
         }
 
-
-
         public T Update(T entidad)
         {
             return Actualizar(entidad).Result;

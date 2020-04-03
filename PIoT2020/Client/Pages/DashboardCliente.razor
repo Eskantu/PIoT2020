@@ -1,6 +1,13 @@
 ﻿@page "/DashboardCliente"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
 <div class="container">
-    <h3>Dashboard Cliente</h3>
+    <AuthorizeView>
+        <Authorized>
+            <h3>@context.User.Identity.Name</h3>
+        </Authorized>
+    </AuthorizeView>
+    <a class="sign-out" href="Usuario/signout">Cerrar sesión</a>
 </div>
 
 @code {

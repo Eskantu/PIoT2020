@@ -1,68 +1,54 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime;
-
+@inject HttpClient httpClient
+@*@inject ServicioDeAutenticacion _autenticacion*@
 
 @code{
-    LoginModel loginModel = new LoginModel();
-    void Login()
-    {
-        var user = PIoT2020.Shared.Tools.Tools.factoryManager._usuarioManager;
-        if (user.Login(loginModel.UsuarioName, loginModel.Password) is Usuario userResult)
-        {
-            if (PIoT2020.Shared.Tools.Tools.factoryManager._tipoUsuarioManager.BuscarPorId(userResult.TipoUsuario).Name == "Cliente")
-            {
-                NavigationManager.NavigateTo("/DashboardCliente", true);
 
-            }
-            else
-            {
-                NavigationManager.NavigateTo("/DashboardAdministrador", true);
-            }
-        }
-        else
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var AuthState = await AuthenticationStateTask;
+        if (AuthState.User.Identity.IsAuthenticated)
         {
-            JSRuntime.InvokeVoidAsync("alert", "Usuario no encontrado");
+            NavigationManager.NavigateTo(
+                "DashboardCliente", true);
         }
+    }
+
+
+    Usuario loginModel = new Usuario();
+
+    async Task Login()
+    {
+        NavigationManager.NavigateTo($"Usuario/SignIn?username={loginModel.UsuarioName}&passowrd={loginModel.Password}",true);
 
     }
 
 }
-<img class="wave" src="img/wave.png">
-<div class="container">
-    <div class="img">
-        <img src="img/bg.svg">
-    </div>
-    <div class="login-content">
-        <EditForm Model="@loginModel" OnSubmit="Login">
-            <DataAnnotationsValidator />
-            <ValidationSummary Model="@loginModel" />
-            <img src="img/avatar.svg">
-            <h2 class="title">Bienvenido</h2>
-            <div class="input-div one">
-                <div class="i">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="div">
-                    <!--
-                    <h5>usuario</h5>
-                    -->
-                    <InputText @bind-Value="@loginModel.UsuarioName" placeholder="usuario" class="input" />
-                </div>
+@*<AuthorizeView >
+        <Authorizing>
+            <text>Autorizando la entrada del usuario actual</text>
+        </Authorizing>
+        <Authorized>
+            <div>
+                <span class="username">@context.User.Identity.Name</span>
+                <a class="sign-out" href="Usuario/signout">Cerrar sesión</a>
             </div>
-            <div class="input-div pass">
-                <div class="i">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <div class="div">
-                    <!--
-                    <h5>contraseña</h5>
-                    -->
-                    <InputText @bind-Value="@loginModel.Password" placeholder="contraseña" type="password" class="input" />
-                </div>
-            </div>
-            <a href="#">registro nuevo usuario</a>
-            <button type="submit" class="btn">Login</button>
-        </EditForm>
-    </div>
-</div>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>*@
+<h1>Inicio de sesion PIoT 2020</h1>
+    <EditForm Model="@loginModel" OnValidSubmit="Login">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <label for="username">Nombre de usuario</label>
+        <InputText id="usermane" @bind-Value="loginModel.UsuarioName" />
+        <label for="password">Contraseña</label>
+        <InputText type="password"   id="password" @bind-Value="loginModel.Password" />
+        <button type="submit">Submit</button>
+    </EditForm>
+
+

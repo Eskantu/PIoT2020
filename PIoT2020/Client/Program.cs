@@ -6,6 +6,7 @@ namespace PIoT2020.Client
     {
         public static void Main(string[] args)
         {
+           
             CreateHostBuilder(args).Build().Run();
         }
 

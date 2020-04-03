@@ -21,7 +21,7 @@ namespace PIoT2020.Movil.Droid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
+            Window.SetStatusBarColor(Android.Graphics.Color.Black);
             Window.SetNavigationBarColor(Android.Graphics.Color.Black);
             XF.Material.Droid.Material.Init(this, savedInstanceState);
             
