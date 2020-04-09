@@ -1,0 +1,88 @@
+﻿@page "/ProyectoDetalles/{IdProyecto}"
+@inject HttpClient client;
+@inject NavigationManager navigation
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+@code {
+
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    [Parameter]
+    public string IdProyecto { get; set; }
+    string NombrePoyecto="";
+    List<DipositivoModel> dispositivo;
+    protected async override Task OnInitializedAsync()
+    {
+        dispositivo = new List<DipositivoModel>();
+        if (AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
+        {
+            dispositivo = await client.GetJsonAsync<List<DipositivoModel>>($"Dispositivo/GetDispositivoModel?IdProyecto={IdProyecto}");
+            NombrePoyecto = dispositivo[0].Proyecto.Name;
+        }
+    }
+
+    async Task NuevoDispositivo()
+    {
+        navigation.NavigateTo($"CrearNuevoDispositivo/New-{IdProyecto}");
+    }
+    async Task AccionDispositivo(string id, string accion)
+    {
+        switch (accion)
+        {
+            case "Eliminar":
+                await client.DeleteAsync($"Dispositivo/{id}");
+                navigation.NavigateTo($"/ProyectoDetalles/{IdProyecto}",true);
+                break;
+            case "Modificar":
+                navigation.NavigateTo($"CrearNuevoDispositivo/{id}",true);
+                break;
+            case "Sensor":
+                navigation.NavigateTo($"SensorView/New-{id}",true);
+                break;
+                case "Ver":
+                navigation.NavigateTo($"LecturasView/{id}",true);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+<div class="jumbotron-fluid">
+    <h1>@NombrePoyecto</h1>
+    <div class="row">
+        <div class="col-sm">
+            <button @onclick="NuevoDispositivo" class="btn bg-success">Nuevo Dispositivo</button>
+        </div>
+    </div>
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Nombre Disposivo</th>
+                <th scope="col">Descripcion</th>
+                <th scope="col"># sensores</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < dispositivo.Count; i++)
+            {
+                int posicion = i;
+                <tr>
+                    <th scope="row">@dispositivo[posicion].EntidadPrincipal.Id</th>
+                    <td>@dispositivo[posicion].EntidadPrincipal.Name</td>
+                    <td>@dispositivo[posicion].EntidadPrincipal.Descripcion</td>
+                    <td>@dispositivo[posicion].Sensores.Count</td>
+                    <td>
+                        <button @onclick="@(e=>AccionDispositivo(dispositivo[posicion].EntidadPrincipal.Id,"Ver"))" class="btn btn-success">View</button>
+                        <button @onclick="@(e=>AccionDispositivo(dispositivo[posicion].EntidadPrincipal.Id,"Eliminar"))" class="btn btn-danger">Eliminar</button>
+                        <button @onclick="@(e=>AccionDispositivo(dispositivo[posicion].EntidadPrincipal.Id,"Modificar"))" class="btn btn-warning">Modificar</button>
+                        <button @onclick="@(e=>AccionDispositivo(dispositivo[posicion].EntidadPrincipal.Id,"Sensor"))" class="btn btn-primary">Add sensor</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

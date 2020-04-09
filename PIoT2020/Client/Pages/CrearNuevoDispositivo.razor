@@ -1,0 +1,65 @@
+﻿@page "/CrearNuevoDispositivo/{IdProyecto}"
+@inject HttpClient client
+@inject NavigationManager navigation
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+@code {
+    [Parameter]
+    public string IdProyecto { get; set; }
+
+    Dispositivo dispositivo = new Dispositivo();
+    bool crear;
+
+    async Task CrearModificarDispositivo()
+    {
+        if (!string.IsNullOrEmpty(dispositivo.Name) && !string.IsNullOrEmpty(dispositivo.Descripcion))
+        {
+            if (crear)
+            {
+                navigation.NavigateTo($"Dispositivo/CrearDispositivo?IdProyecto={IdProyecto.Split('-')[1]}&name={dispositivo.Name}&descripcion={dispositivo.Descripcion}", true);
+            }
+            else
+            {
+                Dispositivo result = await client.PutJsonAsync<Dispositivo>("Dispositivo", new ModeloAPI<Dispositivo>() { Entidad = dispositivo });
+                if (result != null)
+                {
+                    navigation.NavigateTo($"ProyectoDetalles/{dispositivo.IdProyecto}", true);
+                }
+            }
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (IdProyecto.Split('-')[0] == "New")
+        {
+            crear = true;
+        }
+        else
+        {
+            dispositivo = await client.GetJsonAsync<Dispositivo>($"Dispositivo/{IdProyecto}");
+            crear = false;
+        }
+
+
+    }
+
+}
+<div class="jumbotron-fluid">
+    <div class="row">
+        <h1 class="display-4">Dispositivo</h1>
+    </div>
+    <div class="row">
+        <EditForm Model="dispositivo" OnSubmit="CrearModificarDispositivo">
+            <div class="form-group">
+                <label for="nameProyecto">Nombre de dispositivo</label>
+                <InputText @bind-Value="@dispositivo.Name" class="form-control" id="nameProyecto" aria-describedby="emailHelp" />
+                <label for="description">Descripción</label>
+                <InputText @bind-Value="@dispositivo.Descripcion" class="form-control" id="description" aria-describedby="emailHelp" />
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </EditForm>
+    </div>
+    
+</div>

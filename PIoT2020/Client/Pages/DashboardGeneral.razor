@@ -1,0 +1,81 @@
+﻿@page "/DashboardGeneral"
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization;
+
+@attribute [Authorize]
+
+@code {
+
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    List<ProyectoModel> Proyectos;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Proyectos = new List<ProyectoModel>();
+        if (AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
+        {
+            Proyectos = await httpClient.GetJsonAsync<List<ProyectoModel>>("Proyecto/GetModelo");
+        }
+    }
+
+    async Task CrearProyecto()
+    {
+        NavigationManager.NavigateTo($"CrearProyecto/{"New"}", true);
+    }
+    private void Accion(MouseEventArgs e, string Id, string accion)
+    {
+        switch (accion)
+        {
+            case "VerMas":
+                NavigationManager.NavigateTo($"ProyectoDetalles/{Id}");
+                break;
+            case "Eliminar":
+                httpClient.DeleteAsync($"Proyecto/{Id}");
+                NavigationManager.NavigateTo("/DashboardGeneral", true);
+                break;
+            case "Editar":
+                NavigationManager.NavigateTo($"/CrearProyecto/{Id}", true);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+<div class="jumbotron-fluid">
+    <div class="row">
+        <button class="btn btn-success" style="margin:5px,0px,5px,0px" @onclick="CrearProyecto">Nuevo proyecto</button>
+    </div>
+    <div class="row">
+        @for (int i = 0; i < Proyectos.Count(); i++)
+        {
+            int posocion = i;
+            <div class="col-sm ">
+                <div class="card" style="width: 21rem; margin:0px,0px,5px,0px">
+                    <img src="img/Login.svg" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">@Proyectos[posocion].EntidadPrincipal.Name</h5>
+                        <p class="card-text">@Proyectos[i].EntidadPrincipal.Descripcion</p>
+                        <button class="btn btn-primary" @onclick="@(e => Accion(e, Proyectos[posocion].EntidadPrincipal.Id,"VerMas"))">
+                            Ver mas
+                        </button>
+                        <button class="btn btn-danger" @onclick="@(e => Accion(e, Proyectos[posocion].EntidadPrincipal.Id,"Eliminar"))">
+                            Eliminar
+                        </button>
+                        <button class="btn btn-warning" @onclick="@(e => Accion(e, Proyectos[posocion].EntidadPrincipal.Id,"Editar"))">
+                            Editar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+
+

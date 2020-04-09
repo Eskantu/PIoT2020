@@ -1,0 +1,57 @@
+﻿@page "/CrearProyecto/{IdProyecto}"
+@inject NavigationManager navigationManager
+@inject HttpClient client
+@code {
+        [CascadingParameter]
+        Task<AuthenticationState> AuthenticationStateTask { get; set; }
+        [Parameter]
+        public string IdProyecto { get; set; }
+
+        Proyecto proyecto = new Proyecto();
+
+        async Task CrearNuevoProyecto()
+        {
+            if ((IdProyecto == "New"))
+            {
+                navigationManager.NavigateTo($"Proyecto/CrearNuevoProyecto?Nombre={proyecto.Name}&descripcion={proyecto.Descripcion}&idUsuario={AuthenticationStateTask.Result.User.Claims.Where(p => p.Type == ClaimTypes.NameIdentifier).SingleOrDefault().Value}", true);
+            }
+            else
+            {
+                Proyecto result = await client.PutJsonAsync<Proyecto>("Proyecto", new ModeloAPI<Proyecto>() { Entidad = proyecto });
+                if (result != null)
+                {
+                    navigationManager.NavigateTo("/DashboardGeneral", true);
+                }
+            }
+        }
+    
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (IdProyecto == "New")
+        {
+            proyecto = new Proyecto();
+        }
+        else
+        {
+            proyecto = await client.GetJsonAsync<Proyecto>($"Proyecto/{IdProyecto}");
+        }
+    }
+}
+<div class="jumbotron-fluid">
+    <div class="row">
+        <h1 class="display-4">Proyecto</h1>
+    </div>
+    <div class="row">
+        <EditForm Model="proyecto" OnSubmit="CrearNuevoProyecto">
+            <div class="form-group">
+                <label for="nameProyecto">Nombre de proyecto</label>
+                <InputText @bind-Value="@proyecto.Name" class="form-control" id="nameProyecto" aria-describedby="Nombre" />
+                <label for="descripcionProyecto">Descripcion</label>
+                <InputText @bind-Value="@proyecto.Descripcion" class="form-control" id="descripcionProyecto" aria-describedby="Descripcion" />
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </EditForm>
+    </div>
+    @*<iframe src=https://create.arduino.cc/editor/eskantu/2a2c6f40-f9d0-4e0d-9263-85ebd77dc505/preview?embed style="height:510px;width:100%;margin:10px 0" frameborder=0></iframe>*@
+</div>

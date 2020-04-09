@@ -16,6 +16,7 @@ using PIoT2020.Shared.Modelos;
 using Microsoft.AspNetCore.Blazor.Http;
 using System.Net;
 using Microsoft.AspNetCore.Components;
+using PIoT2020.Shared.Tools;
 
 namespace PIoT2020.Server.Controllers
 {
@@ -37,10 +38,11 @@ namespace PIoT2020.Server.Controllers
             
             if (User.Identity.IsAuthenticated)
             {
+
                 return new UserInfo
                 {
                     Name = User.Identity.Name,
-                    IsAuthenticated = true
+                    IsAuthenticated = true, Role=User.Claims.Where(claim=>claim.Type==ClaimTypes.Role).SingleOrDefault().Value, IdUsuario= User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).SingleOrDefault().Value
                 };
             }
             else
@@ -54,11 +56,12 @@ namespace PIoT2020.Server.Controllers
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(passowrd))
             {
-                return Redirect("/");
+                return Redirect("");
             }
             Usuario usuario = _genericRepository.Query(user => user.Password == passowrd && user.UsuarioName == username).SingleOrDefault();
             if (usuario != null)
             {
+                Tools.usuario = usuario;
                 //            string baseUrl = Request.Url.Scheme + "://" + Request.Url.Authority +
                 //Request.ApplicationPath.TrimEnd('/') + "/";
                 HttpClient httpClient = new HttpClient();
@@ -69,9 +72,10 @@ namespace PIoT2020.Server.Controllers
                 {
                     new Claim(ClaimTypes.Name,usuario.UsuarioName),
                     new Claim(ClaimTypes.Role, TipoUsuario.Name),
+                    new Claim(ClaimTypes.NameIdentifier, usuario.Id)
                 };
 
-                var authProperties = new AuthenticationProperties { IsPersistent = false, };
+                var authProperties = new AuthenticationProperties { IsPersistent = false, IssuedUtc=DateTimeOffset.UtcNow, ExpiresUtc=DateTime.UtcNow.AddMinutes(30) };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
                 if (TipoUsuario.Name == "Administrador")
@@ -80,18 +84,18 @@ namespace PIoT2020.Server.Controllers
                 }
                 if (TipoUsuario.Name == "General")
                 {
-                    return Redirect("/DashboardCliente");
+                    return Redirect("/DashboardGeneral");
                 }
             }
             return Redirect("/");
         }
 
         [HttpGet("signout")]
-        public async Task<IActionResult> SignOut()
+        public async Task<RedirectResult> SignOut()
         {
             await HttpContext.SignOutAsync(
             CookieAuthenticationDefaults.AuthenticationScheme);
-            return Redirect("~/");
+            return Redirect("/");
         }
     }
 }

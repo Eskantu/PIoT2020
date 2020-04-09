@@ -20,8 +20,7 @@ namespace PIoT2020.Client.Auth
         {
             this.HttpClient = HttpClient;
         }
-        public override async Task<AuthenticationState>
-            GetAuthenticationStateAsync()
+        public override async Task<AuthenticationState>GetAuthenticationStateAsync()
         {
             var UserInfo = await HttpClient.GetJsonAsync<UserInfo>("Usuario/Logger");
             ClaimsIdentity Identity;
@@ -30,7 +29,7 @@ namespace PIoT2020.Client.Auth
                 Identity = new ClaimsIdentity(
                     new[]
                     {
-                        new Claim(ClaimTypes.Name, UserInfo.Name),
+                        new Claim(ClaimTypes.Name, UserInfo.Name), new Claim(ClaimTypes.Role, UserInfo.Role), new Claim(ClaimTypes.NameIdentifier,UserInfo.IdUsuario)
                     }, "serverauth");
             }
             else

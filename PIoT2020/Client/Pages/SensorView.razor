@@ -1,0 +1,82 @@
+﻿@page "/SensorView/{Id}"
+@inject NavigationManager navigationManager
+@inject HttpClient client
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    Sensor sensor = new Sensor();
+    bool nuevo;
+    protected async override Task OnInitializedAsync()
+    {
+        if (Id.Split('-')[0] == "New")
+        {
+            nuevo = true;
+        }
+        else
+        {
+            sensor = await client.GetJsonAsync<Sensor>($"Sensor/{Id.Split('-')[1]}");
+            nuevo = false;
+        }
+    }
+
+    public async Task CrearNuevoSensor()
+    {
+
+        if (nuevo)
+        {
+            var  result = await client.PostJsonAsync<Sensor>("Sensor",new ModeloAPI<Sensor>() { Entidad = new Sensor() { IdDispositivo = Id.Split('-')[1], UnidadDeMedida = sensor.UnidadDeMedida, Name = sensor.Name } } );
+            if (result!=null)
+            {
+                var IdProyecto = await client.GetJsonAsync<Dispositivo>($"Dispositivo/{Id.Split('-')[1]}");
+
+                navigationManager.NavigateTo($"/ProyectoDetalles/{IdProyecto.IdProyecto}");
+            }
+        }
+        else
+        {
+            var  result = await client.PutJsonAsync<Sensor>("Sensor",new ModeloAPI<Sensor>() { Entidad=sensor });
+            if (result!=null)
+            {
+            var IdProyecto = await client.GetJsonAsync<Dispositivo>($"Dispositivo/{Id.Split('-')[1]}");
+            navigationManager.NavigateTo($"/ProyectoDetalles/{IdProyecto.IdProyecto}");
+            }
+        }
+    }
+}
+<div class="jumbotron-fluid">
+    <div class="row">
+        <h1 class="display-4">Sensor</h1>
+    </div>
+    <div class="row">
+        <EditForm Model="sensor" OnSubmit="CrearNuevoSensor">
+            <div class="form-group">
+                <label for="nameProyecto">Nombre de proyecto</label>
+                <InputText @bind-Value="@sensor.Name" class="form-control" id="nameProyecto" aria-describedby="Nombre" />
+                <label for="descripcionProyecto">Unidad de medida</label>
+                <InputText @bind-Value="@sensor.UnidadDeMedida" class="form-control" id="descripcionProyecto" aria-describedby="Unidad de medida" />
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </EditForm>
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Id</th>
+                    <th scope="col">Fecha hora</th>
+                    <th scope="col">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>mdo</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

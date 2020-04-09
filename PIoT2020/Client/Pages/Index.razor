@@ -1,7 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
-@*@inject ServicioDeAutenticacion _autenticacion*@
 
 @code{
 
@@ -13,7 +12,7 @@
         if (AuthState.User.Identity.IsAuthenticated)
         {
             NavigationManager.NavigateTo(
-                "DashboardCliente", true);
+                "DashboardGeneral", true);
         }
     }
 
@@ -22,33 +21,23 @@
 
     async Task Login()
     {
-        NavigationManager.NavigateTo($"Usuario/SignIn?username={loginModel.UsuarioName}&passowrd={loginModel.Password}",true);
+        NavigationManager.NavigateTo($"Usuario/SignIn?username={loginModel.UsuarioName}&passowrd={loginModel.Password}", true);
 
     }
 
 }
-@*<AuthorizeView >
-        <Authorizing>
-            <text>Autorizando la entrada del usuario actual</text>
-        </Authorizing>
-        <Authorized>
-            <div>
-                <span class="username">@context.User.Identity.Name</span>
-                <a class="sign-out" href="Usuario/signout">Cerrar sesión</a>
-            </div>
-        </Authorized>
-        <NotAuthorized>
-        </NotAuthorized>
-    </AuthorizeView>*@
-<h1>Inicio de sesion PIoT 2020</h1>
+
+@if(!AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
+{
+    <h1>Inicio de sesion PIoT 2020</h1>
     <EditForm Model="@loginModel" OnValidSubmit="Login">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
         <label for="username">Nombre de usuario</label>
         <InputText id="usermane" @bind-Value="loginModel.UsuarioName" />
         <label for="password">Contraseña</label>
-        <InputText type="password"   id="password" @bind-Value="loginModel.Password" />
+        <InputText type="password" id="password" @bind-Value="loginModel.Password" />
         <button type="submit">Submit</button>
     </EditForm>
+}
+
 
 

@@ -8,6 +8,8 @@ namespace PIoT2020.Shared.Modelos
     {
         public bool IsAuthenticated { get; set; }
         public string Name { set; get; }
+        public string IdUsuario { get; set; }
+        public string Role { get; set; }
 
     }
 }

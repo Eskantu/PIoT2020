@@ -1,0 +1,155 @@
+﻿@page "/LecturasView/{IdDispositivo}"
+@inject HttpClient httpClient
+@using Syncfusion.Pdf
+@using Syncfusion.Pdf.Grid;
+@using Syncfusion.Drawing;
+@using Syncfusion.Pdf.Graphics;
+@inject Microsoft.JSInterop.IJSRuntime JS
+@using System.IO;
+
+
+@code {
+    [Parameter]
+    public string IdDispositivo { get; set; }
+    string nameDevice = "";
+    List<LecturaModel> lecturaModels = new List<LecturaModel>();
+    List<Exportacion> exportacions = new List<Exportacion>();
+    Dispositivo dispositivo;
+    protected async override Task OnInitializedAsync()
+    {
+        dispositivo = new Dispositivo();
+        dispositivo = await httpClient.GetJsonAsync<Dispositivo>($"Dispositivo/{IdDispositivo}");
+        nameDevice = dispositivo.Name;
+        lecturaModels = await httpClient.GetJsonAsync<List<LecturaModel>>($"Lectura/GetModel?idDispositivo={IdDispositivo}");
+        for (int i = 0; i < lecturaModels.Count; i++)
+        {
+            exportacions.Add(new Exportacion() { NumeroRegistro = (i + 1), FechaHoraCreacion = lecturaModels[i].EntidadPrincipal.FechaHoraCreacion, Sensor = lecturaModels[i].Sensor.Name, Valor = $"{lecturaModels[i].EntidadPrincipal.Value} {lecturaModels[i].Sensor.UnidadDeMedida}" });
+        }
+
+    }
+
+    async Task DescargarLecturas()
+    {
+        int paragraphAfterSpacing = 8;
+        int cellMargin = 8;
+        PdfDocument pdfDocument = new PdfDocument();
+        //Add Page to the PDF document.
+        PdfPage page = pdfDocument.Pages.Add();
+
+        //Create a new font.
+        PdfStandardFont font = new PdfStandardFont(PdfFontFamily.TimesRoman, 16);
+
+        //Create a text element to draw a text in PDF page.
+        PdfTextElement title = new PdfTextElement($"Lecturas de {nameDevice}", font, PdfBrushes.Black);
+        PdfLayoutResult result = title.Draw(page, new PointF(0, 0));
+
+
+        PdfStandardFont contentFont = new PdfStandardFont(PdfFontFamily.TimesRoman, 12);
+        PdfTextElement content = new PdfTextElement($"PIoT 2020 Descarga de lecturas", contentFont, PdfBrushes.Black);
+        //PdfTextElement content = new PdfTextElement($"Proyecto: {httpClient.GetJsonAsync<Proyecto>($"Proyecto/{dispositivo.IdProyecto}").Result.Name}", contentFont, PdfBrushes.Black);
+        PdfLayoutFormat format = new PdfLayoutFormat();
+        format.Layout = PdfLayoutType.Paginate;
+
+        //Draw a text to the PDF document.
+        result = content.Draw(page, new RectangleF(0, result.Bounds.Bottom + paragraphAfterSpacing, page.GetClientSize().Width, page.GetClientSize().Height), format);
+
+        //Create a PdfGrid.
+        PdfGrid pdfGrid = new PdfGrid();
+        pdfGrid.Style.CellPadding.Left = cellMargin;
+        pdfGrid.Style.CellPadding.Right = cellMargin;
+
+        //Applying built-in style to the PDF grid
+        pdfGrid.ApplyBuiltinStyle(PdfGridBuiltinStyle.GridTable4Accent1);
+
+        //Assign data source.
+        pdfGrid.DataSource = exportacions;
+
+        pdfGrid.Style.Font = contentFont;
+
+        //Draw PDF grid into the PDF page.
+        pdfGrid.Draw(page, new Syncfusion.Drawing.PointF(0, result.Bounds.Bottom + paragraphAfterSpacing));
+
+        MemoryStream memoryStream = new MemoryStream();
+
+        // Save the PDF document.
+        pdfDocument.Save(memoryStream);
+
+        // Download the PDF document
+        await JS.SaveAs($"PIoT2020{DateTime.Now.ToString()}.pdf", memoryStream.ToArray());
+
+    }
+
+    async Task VerGrafica()
+    {
+        // await  JS.InvokeAsync<object>("Morris.Line", "Grafica", exportacions, "FechaHoraCreacion", "Valor", "DHT11");
+        
+    }
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await  JS.InvokeAsync<object>("Morris.Line", new
+            object[]
+        {
+            new
+            {
+                element="Grafica"
+            },
+            new
+            {
+                data=new object[]
+                {
+                    new {year="2008", Value=20 },
+                    new {year="2009", Value=10 },
+                    new {year="2010", Value=5 },
+                    new {year="2011", Value=5 },
+                    new {year="2012", Value=20 }
+                }
+            },
+            new
+            {
+                xkey="year"
+            },
+            new
+            {
+                ykeys=new string[]{"Value"}
+            },
+            new
+            {
+                labels=new string[]{"Value" }
+            }
+        });
+        Console.WriteLine("Termino grafica");
+        }
+
+}
+
+<div class="jumbotron-fluid">
+    <h1>Lecturas de @nameDevice </h1>
+    <div class="row">
+        <button class="btn btn-success" @onclick="DescargarLecturas">Descargar lecturas</button>
+        <button class="btn btn-dark" aria-disabled="true" @onclick="VerGrafica">Ver grafica</button>
+    </div>
+    <div  style="height:250px;" id="Grafica">
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Sensor</th>
+                <th scope="col">Fecha hora</th>
+                <th scope="col">Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < lecturaModels.Count; i++)
+            {
+                int posicion = i;
+                <tr>
+                    <th scope="row">@posicion</th>
+                    <td>@lecturaModels[posicion].Sensor.Name</td>
+                    <td>@lecturaModels[posicion].EntidadPrincipal.FechaHoraCreacion.ToString()</td>
+                    <td>@lecturaModels[posicion].EntidadPrincipal.Value @lecturaModels[posicion].Sensor.UnidadDeMedida</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

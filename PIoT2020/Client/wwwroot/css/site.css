@@ -1,34 +1,33 @@
 ﻿
 html, body {
-    height: 100%;
-    
-    //background-color: #d35400;
     background-color: white;
     font-family: 'Poppins', sans-serif;
 }
 
-body {
-
-   flex-direction: column;
-    //font-family: 'quicksand';
-    overflow: hidden;
-    
+app {
+    position: relative;
+    display: grid;
 }
- 
 
 .content {
-
-    
     display: flex;
     height: 100%;
     z-index: 1;
-    
     background-color: white;
 }
 
 .logo {
-    margin-right: 3rem;
-    width: 9rem;
+    margin-right: 1rem;
+    width: 2rem;
+}
+
+
+.main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.5rem !important;
+    overflow: visible;
+    margin-top:50px;
 }
 
 #blazor-error-ui {

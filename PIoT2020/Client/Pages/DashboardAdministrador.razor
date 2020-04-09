@@ -2,14 +2,6 @@
 @using Microsoft.AspNetCore.Authorization;
 @attribute [Authorize]
 
-<a class="sign-out" href="Usuario/signout">Cerrar sesión</a>
-<AuthorizeView>
-    <Authorized>
-        <h3>@context.User.Identity.Name</h3>
-    </Authorized>
-</AuthorizeView>
-
-
 @code {
 
 }

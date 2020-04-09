@@ -8,5 +8,7 @@ namespace PIoT2020.COMMON.Entidades
     {
         public string Name { get; set; }
         public string MqttCommand { get; set; }
+        public string IdDispositivo { get; set; }
+
     }
 }
