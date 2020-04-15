@@ -29,16 +29,16 @@ namespace PIoT2020.Server.Controllers
             {
                 if (_genericRepository.Create(new Lectura() { IdSensor = idSensor, Value = value }) is Lectura result)
                 {
-                    return Ok(result);
+                    return Ok(true);
                 }
                 else
                 {
-                    return BadRequest($"ERROR: {_genericRepository.Error}");
+                    return BadRequest(false);
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest($"ERROR: {ex.Message}, {_genericRepository.Error}");
+                return BadRequest(false);
             }
         }
 

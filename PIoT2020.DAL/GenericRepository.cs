@@ -4,6 +4,7 @@ using PIoT2020.COMMON.Entidades;
 using PIoT2020.COMMON.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -15,8 +16,8 @@ namespace PIoT2020.DAL
         private readonly IMongoDatabase _db;
         public GenericRepository()
         {
-            //_client = new MongoClient(new MongoUrl("mongodb://eskantu:Esklante98@ds016298.mlab.com:16298/piot2020?retryWrites=false"));
-            _client = new MongoClient(new MongoUrl("mongodb://localhost:27017/piot2020?retryWrites=false"));
+            //_client = new MongoClient(new MongoUrl("mongodb://localhost:27017/piot2020?retryWrites=false"));
+            _client = new MongoClient(new MongoUrl("mongodb://eskantu:esklante98@ds016298.mlab.com:16298/piot2020?retryWrites=false"));
             _db = _client.GetDatabase("piot2020");
         }
         private IMongoCollection<T> Collection() => _db.GetCollection<T>(typeof(T).Name);
@@ -45,6 +46,7 @@ namespace PIoT2020.DAL
             {
                 entidad.Id = ObjectId.GenerateNewId().ToString();
                 entidad.FechaHoraCreacion = DateTime.Now;
+                bool valido = true;
                 Collection().InsertOne(entidad);
                 Error = "";
                 return entidad;
@@ -61,9 +63,9 @@ namespace PIoT2020.DAL
         {
             try
             {
-                int r = (int)Collection().DeleteOne(entidad => entidad.Id==entidadEliminar.Id).DeletedCount;
+                int r = (int)Collection().DeleteOne(entidad => entidad.Id == entidadEliminar.Id).DeletedCount;
                 Error = r == 1 ? "" : "No se eliminó";
-                return r==1 ;
+                return r == 1;
             }
             catch (Exception ex)
             {

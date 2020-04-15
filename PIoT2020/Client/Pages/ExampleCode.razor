@@ -1,0 +1,57 @@
+﻿@page "/ExampleCode"
+<h3>Codigo ejemplo para arduino</h3>
+<div class="jumbotron">
+<pre>
+    <code>
+		#include &lt;WiFi.h&gt;
+
+		WiFiClient espClient;
+		const char* ssid = "Nombre de Red WiFi";
+		const char* password = "Contraseña de Red WiFi";
+		const char* server_IoT = "http://marioescalante.azurewebsites.net";
+		//URL:http://marioescalante.azurewebsites.net/
+
+		void setup()
+		{
+		IniciaWiFi();
+		}
+
+		void IniciaWiFi()
+		{
+		Serial.begin(9600);
+		WiFi.begin(ssid, password);
+		while (WiFi.status() != WL_CONNECTED)
+		{
+		delay(500);
+		Serial.println("Conectando a WiFi...");
+		}
+		Serial.println("Conectado ala red WiFi");
+		}
+
+		void CargarEnIoTCloud(char* idSensor, float valor)
+		{
+		if (!espClient.connect(server_IoT, 80))
+		{
+		Serial.println("Conexion fallida");
+		return;
+		}
+		espClient.print(String("POST ") + "/Lectura/Insertar?value=" + String(valor) + "&idSensor=" + String(idSensor) + " HTTP/1.1\r\nHost: marioescalante.azurewebsites.net \r\nContent-Type: application/json; charset=utf-8\r\nContent-Length:0\r\n" + "Connection: close\r\n\r\n");
+		delay(2000);
+		while (espClient.available())
+		{
+		char c = espClient.read();
+		Serial.print(c);
+		}
+		}
+
+		void loop()
+		{
+		//CargarEnPIoT2020d("id_sensor",valor);
+		CargarEnIoTCloud("5caba3b633152b3d402b4e26",70);
+		delay(1000);
+		}
+	</code>
+</pre>
+</div>
+
+@*<iframe src=https://create.arduino.cc/editor/eskantu/d6f76af4-f3e9-4a9e-8096-747d0afd0417/preview?embed style="height:510px;width:100%;margin:10px 0" frameborder=0></iframe>*@

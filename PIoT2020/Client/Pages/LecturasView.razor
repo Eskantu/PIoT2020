@@ -78,25 +78,53 @@
         await JS.SaveAs($"PIoT2020{DateTime.Now.ToString()}.pdf", memoryStream.ToArray());
 
     }
+}
 
-    async Task VerGrafica()
-    {
-        // await  JS.InvokeAsync<object>("Morris.Line", "Grafica", exportacions, "FechaHoraCreacion", "Valor", "DHT11");
-        
-    }
-        protected async override Task OnAfterRenderAsync(bool firstRender)
+<div class="jumbotron-fluid">
+    <h1>Lecturas de @nameDevice </h1>
+    <div class="row">
+        <button class="btn btn-success" @onclick="DescargarLecturas">Descargar lecturas</button>
+    </div>
+    <div id="myfirstchart" ></div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Id Sensor</th>
+                <th scope="col">Sensor</th>
+                <th scope="col">Fecha hora</th>
+                <th scope="col">Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < lecturaModels.Count; i++)
+            {
+                int posicion = i;
+                <tr>
+                    <th scope="row">@posicion</th>
+                    <td>@lecturaModels[posicion].Sensor.Id</td>
+                    <td>@lecturaModels[posicion].Sensor.Name</td>
+                    <td>@lecturaModels[posicion].EntidadPrincipal.FechaHoraCreacion.ToString()</td>
+                    <td>@lecturaModels[posicion].EntidadPrincipal.Value @lecturaModels[posicion].Sensor.UnidadDeMedida</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@code
+{      protected override void OnInitialized()
         {
-            await  JS.InvokeAsync<object>("Morris.Line", new
-            object[]
-        {
+            JS.InvokeAsync<object>("Morris.Line", new
+      object[]
+  {
             new
             {
-                element="Grafica"
+                element="myfirstchart"
             },
             new
             {
                 data=new object[]
-                {
+            {
                     new {year="2008", Value=20 },
                     new {year="2009", Value=10 },
                     new {year="2010", Value=5 },
@@ -110,46 +138,15 @@
             },
             new
             {
-                ykeys=new string[]{"Value"}
+                ykeys=new string[]{"value"}
             },
             new
             {
                 labels=new string[]{"Value" }
             }
-        });
+      });
         Console.WriteLine("Termino grafica");
         }
 
-}
 
-<div class="jumbotron-fluid">
-    <h1>Lecturas de @nameDevice </h1>
-    <div class="row">
-        <button class="btn btn-success" @onclick="DescargarLecturas">Descargar lecturas</button>
-        <button class="btn btn-dark" aria-disabled="true" @onclick="VerGrafica">Ver grafica</button>
-    </div>
-    <div  style="height:250px;" id="Grafica">
-    </div>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Sensor</th>
-                <th scope="col">Fecha hora</th>
-                <th scope="col">Valor</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < lecturaModels.Count; i++)
-            {
-                int posicion = i;
-                <tr>
-                    <th scope="row">@posicion</th>
-                    <td>@lecturaModels[posicion].Sensor.Name</td>
-                    <td>@lecturaModels[posicion].EntidadPrincipal.FechaHoraCreacion.ToString()</td>
-                    <td>@lecturaModels[posicion].EntidadPrincipal.Value @lecturaModels[posicion].Sensor.UnidadDeMedida</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+}

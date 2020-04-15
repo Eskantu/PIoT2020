@@ -27,16 +27,48 @@
 
 }
 
-@if(!AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
+@if (!AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
 {
-    <h1>Inicio de sesion PIoT 2020</h1>
-    <EditForm Model="@loginModel" OnValidSubmit="Login">
-        <label for="username">Nombre de usuario</label>
-        <InputText id="usermane" @bind-Value="loginModel.UsuarioName" />
-        <label for="password">Contraseña</label>
-        <InputText type="password" id="password" @bind-Value="loginModel.Password" />
-        <button type="submit">Submit</button>
-    </EditForm>
+    @*<h1>Inicio de sesion PIoT 2020</h1>
+        <EditForm Model="@loginModel" OnValidSubmit="Login">
+            <label for="username">Nombre de usuario</label>
+            <InputText id="usermane" @bind-Value="loginModel.UsuarioName" />
+            <label for="password">Contraseña</label>
+            <InputText type="password" id="password" @bind-Value="loginModel.Password" />
+            <button type="submit">Submit</button>
+        </EditForm>*@
+
+
+    <img class="wave" src="img/wave.png">
+    <div class="container-login">
+        <div class="img">
+            <img src="img/bg.svg">
+        </div>
+        <div class="login-content">
+            <EditForm class="form-login" Model="@loginModel" OnValidSubmit="Login">
+                <img src="img/avatar.svg">
+                <h2 class="title">PIoT 2020</h2>
+                <div class="input-div one">
+                    <div class="i">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="div">
+                        <InputText @bind-Value="loginModel.UsuarioName" placeholder="usuario" type="text" class="input" />
+                    </div>
+                </div>
+                <div class="input-div pass">
+                    <div class="i">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="div">
+                        <InputText @bind-Value="loginModel.Password" placeholder="contraseña" type="password" class="input" />
+                    </div>
+                </div>
+                <a href="NuevoUsuario">registro nuevo usuario</a>
+                <button type="submit" class="btn-login">Iniciar sesion</button>
+            </EditForm>
+        </div>
+    </div>
 }
 
 

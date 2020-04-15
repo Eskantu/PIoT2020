@@ -17,7 +17,7 @@
         Proyectos = new List<ProyectoModel>();
         if (AuthenticationStateTask.Result.User.Identity.IsAuthenticated)
         {
-            Proyectos = await httpClient.GetJsonAsync<List<ProyectoModel>>("Proyecto/GetModelo");
+            Proyectos = await httpClient.GetJsonAsync<List<ProyectoModel>>($"Proyecto/GetModelo?idUsuario={AuthenticationStateTask.Result.User.Claims.Where(p => p.Type == ClaimTypes.NameIdentifier).SingleOrDefault().Value}");
         }
     }
 

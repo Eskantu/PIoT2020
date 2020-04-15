@@ -19,13 +19,13 @@ namespace PIoT2020.Consultas.Consola
         {
             PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager("API");
 
-            _sensorManager = factory._sensorManager;
-            _lecturaManager = factory._lecturaManager;
-            mqtt = new MQTT("192.168.8.243", 1883, "PIoTConsola");
-            mqtt.Conectado += Mqtt_Conectado;
-            mqtt.Desconectado += Mqtt_Desconectado;
-            mqtt.DatoRecibido += Mqtt_DatoRecibido;
-            mqtt.Suscribirse("practicas/salida");
+            //_sensorManager = factory._sensorManager;
+            //_lecturaManager = factory._lecturaManager;
+            //mqtt = new MQTT("192.168.8.243", 1883, "PIoTConsola");
+            //mqtt.Conectado += Mqtt_Conectado;
+            //mqtt.Desconectado += Mqtt_Desconectado;
+            //mqtt.DatoRecibido += Mqtt_DatoRecibido;
+            //mqtt.Suscribirse("practicas/salida");
             bool opcion = true;
             do
             {

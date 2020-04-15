@@ -97,5 +97,26 @@ namespace PIoT2020.Server.Controllers
             CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect("/");
         }
+    [HttpGet("CrearUsuario")]
+    public async Task<RedirectResult> CrearUsuario(string username, string password)
+        {
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                return Redirect("/NuevoUsuario");
+            }
+            HttpClient httpClient = new HttpClient();
+            baseAddres = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/";
+            httpClient.BaseAddress = new Uri(baseAddres);
+            var TipoUsuario =  httpClient.GetJsonAsync<List<TipoUsuario>>($"TipoUsuario").Result.Where(p=>p.Name== "General").SingleOrDefault();
+           Usuario usuario= _genericRepository.Create(new Usuario() { Password = password, UsuarioName = username, TipoUsuario = TipoUsuario.Id });
+            if (usuario!=null)
+            {
+                return Redirect("/");
+            }
+            else
+            {
+                return Redirect("/NuevoUsuario");
+            }
+        }
     }
 }

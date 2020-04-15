@@ -49,11 +49,11 @@ namespace PIoT2020.Server.Controllers
         }
 
         [HttpGet("GetModelo")]
-        public async Task<List<ProyectoModel>> GetModelo()
+        public async Task<List<ProyectoModel>> GetModelo(string idUsuario)
         {
             HttpClient httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/");
-            var proyectos = await httpClient.GetJsonAsync<List<Proyecto>>($"Proyecto");
+            var proyectos =  httpClient.GetJsonAsync<List<Proyecto>>($"Proyecto").Result.Where(proyecto=>proyecto.IdUsuario==idUsuario).ToList();
             List<ProyectoModel> proyectoModels = new List<ProyectoModel>();
             List<Actuador> actuadores =new List<Actuador>();
             List<Sensor> sensores =new List<Sensor>();
