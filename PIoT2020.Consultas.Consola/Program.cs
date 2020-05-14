@@ -17,7 +17,7 @@ namespace PIoT2020.Consultas.Consola
         static ILecturaManager _lecturaManager;
         static void Main(string[] args)
         {
-            PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager("API");
+            PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager(PIoT2020.COMMON.Enumeraciones.ClientAPI.Azure,"API");
 
             //_sensorManager = factory._sensorManager;
             //_lecturaManager = factory._lecturaManager;

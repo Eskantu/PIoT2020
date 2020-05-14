@@ -1,6 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.piot2020.movil">
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
-    <application android:label="PIoT2020.Movil.Android"></application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.piot2020.movil" android:installLocation="preferExternal">
+	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
+	<application android:label="PIoT2020.Movil.Android">
+    <receiver android:name="com.onesignal.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+      <intent-filter>
+        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        <category android:name="com.companyname.piot2020.movil.examplepushnotification" />
+      </intent-filter>
+    </receiver>
+  </application>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<permission android:name="com.companyname.piot2020.movil.permission.C2D_MESSAGE" 
+            android:protectionLevel="signature" />
+<uses-permission android:name="{$manifestApplicationId}.permission.C2D_MESSAGE" />
 </manifest>

@@ -16,13 +16,28 @@ namespace PIoT2020.DAL.API
     {
         HttpClient httpClient;
         string _apiEntidad;
-        public GenericRepository()
+        public GenericRepository(COMMON.Enumeraciones.ClientAPI clientApi )
         {
             httpClient = new HttpClient();
             _apiEntidad = typeof(T).Name;
-            //httpClient.BaseAddress = new Uri("https://marioescalante.azurewebsites.net/");
-            //httpClient.BaseAddress = new Uri("https://localhost:44372/");
-            //httpClient.BaseAddress = new Uri("http://localhost/");
+            switch (clientApi)
+            {
+                case COMMON.Enumeraciones.ClientAPI.Azure:
+                    httpClient.BaseAddress = new Uri("https://marioescalante.azurewebsites.net/");
+                    break;
+                case COMMON.Enumeraciones.ClientAPI.VMGoogle:
+                    httpClient.BaseAddress = new Uri("http://35.206.64.225/");
+                    break;
+                case COMMON.Enumeraciones.ClientAPI.Local:
+                    httpClient.BaseAddress = new Uri("http://localhost/");
+                    break;
+                case COMMON.Enumeraciones.ClientAPI.IIS:
+                    httpClient.BaseAddress = new Uri("https://localhost:44372/");
+                    break;
+                default:
+                    httpClient.BaseAddress = new Uri("https://marioescalante.azurewebsites.net/");
+                    break;
+            }
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.MaxResponseContentBufferSize = 100000000;

@@ -1,28 +1,59 @@
-﻿using PIoT2020.BIZ;
-using PIoT2020.COMMON.Entidades;
+﻿using PIoT2020.COMMON.Entidades;
 using PIoT2020.COMMON.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PIoT2020.Poblador.Consola
+namespace Admin
 {
     class Program
     {
-        static PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager("API");
-        static IActuadorManager _actuadorManager = factory._actuadorManager;
-        static IDispositivoManager _dispositivoManager = factory._dispositivoManager;
-        static IProyectoManager _proyectoManager = factory._proyectoManager;
-        static ISensorManager _sensorManager = factory._sensorManager;
-        static ITipoUsuarioManager _tipoUsuarioManager = factory._tipoUsuarioManager;
-        static IUsuarioManager _usuarioManager = factory._usuarioManager;
-        static ILecturaManager _lecturaManager = factory._lecturaManager;
+        static IActuadorManager _actuadorManager;
+        static IDispositivoManager _dispositivoManager;
+        static IProyectoManager _proyectoManager;
+        static ISensorManager _sensorManager;
+        static ITipoUsuarioManager _tipoUsuarioManager;
+        static IUsuarioManager _usuarioManager;
+        static ILecturaManager _lecturaManager;
 
         static void Main(string[] args)
         {
+            string? ruta = AppDomain.CurrentDomain.BaseDirectory;
+            Console.WriteLine("Origen de API (Default Local):");
+            Console.WriteLine($"1.-{PIoT2020.COMMON.Enumeraciones.ClientAPI.Azure.ToString()}");
+            Console.WriteLine($"2.-{PIoT2020.COMMON.Enumeraciones.ClientAPI.IIS.ToString()}");
+            Console.WriteLine($"3.-{PIoT2020.COMMON.Enumeraciones.ClientAPI.Local.ToString()}");
+            Console.WriteLine($"4.-{PIoT2020.COMMON.Enumeraciones.ClientAPI.VMGoogle.ToString()}");
+            Console.WriteLine($"Ingresa el origen de API o cualquier otro numero para default:");
+            PIoT2020.COMMON.Enumeraciones.ClientAPI client;
+            int r = int.Parse(Console.ReadLine());
+            switch (r)
+            {
+                case 1:
+                    client = PIoT2020.COMMON.Enumeraciones.ClientAPI.Azure;
+                    break;
+                case 2:
+                    client = PIoT2020.COMMON.Enumeraciones.ClientAPI.IIS;
+                    break;
+                case 3:
+                    client = PIoT2020.COMMON.Enumeraciones.ClientAPI.Local;
+                    break;
+                case 4:
+                    client = PIoT2020.COMMON.Enumeraciones.ClientAPI.VMGoogle;
+                    break;
+                default:
+                    client = PIoT2020.COMMON.Enumeraciones.ClientAPI.Local;
+                    break;
+            }
+            PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager(client, "Mongo");
+            _actuadorManager = factory._actuadorManager;
+            _dispositivoManager = factory._dispositivoManager;
+            _proyectoManager = factory._proyectoManager;
+            _sensorManager = factory._sensorManager;
+            _tipoUsuarioManager = factory._tipoUsuarioManager;
+            _usuarioManager = factory._usuarioManager;
+            _lecturaManager = factory._lecturaManager;
             decimal temperaturaHidalgo = 30;
             bool enPrograma = true;
             do
@@ -58,9 +89,9 @@ namespace PIoT2020.Poblador.Consola
 
         }
 
-        
 
-        
+
+
 
         private static void PoblarDispositivo(string id)
         {
@@ -129,9 +160,9 @@ namespace PIoT2020.Poblador.Consola
                     });
                     usuarios.Add(nuevoUsuario);
                 }
-                string usuariosCSV = ExportarTablaUsuarios(usuarios);//Exportar tabla usuarios a CSV.
-                Imprimir(usuariosCSV);//Imprimir tabla usuarios.
             }
+            string usuariosCSV = ExportarTablaUsuarios(usuarios);//Exportar tabla usuarios a CSV.
+            Imprimir(usuariosCSV);//Imprimir tabla usuarios.
             Console.WriteLine($"{usuarios.Count} usurios creados Creados");
 
             //Entidades para la simulación.
@@ -154,7 +185,7 @@ namespace PIoT2020.Poblador.Consola
                     {
                         //Proyectos, proyecto nuevo.
 
-                        proyectoNuevo = _proyectoManager.Crear(new Proyecto { Name = "Proyecto " + usuarioActual.UsuarioName, Descripcion = "Lectura datos " + usuarioActual.Id });
+                        proyectoNuevo = _proyectoManager.Crear(new Proyecto { Name = "Proyecto " + usuarioActual.UsuarioName, Descripcion = "Lectura datos " + usuarioActual.Id, IdUsuario=usuarioActual.Id });
 
 
                         //Número de dispositivos por usuario.
@@ -191,11 +222,15 @@ namespace PIoT2020.Poblador.Consola
         {
             try
             {
-                Console.WriteLine("Escriba o copie la dirección donde guardar el archivo CSV");
-                string ruta = Console.ReadLine();
+                string? ruta = AppDomain.CurrentDomain.BaseDirectory;
+                if (string.IsNullOrEmpty(ruta))
+                {
+                    Console.WriteLine("No se puede guardar el archivo..");
+                    return;
+                }
                 if (Directory.Exists(ruta))
                 {
-                    StreamWriter archivo = new StreamWriter(ruta + $@"\Simulacion.csv");
+                    StreamWriter archivo = new StreamWriter(ruta+ $@"Simulacion.csv");
                     archivo.Write(usuariosCSV);
                     archivo.Close();
                     Console.WriteLine("Archivo generado correctamente.");
@@ -254,4 +289,3 @@ namespace PIoT2020.Poblador.Consola
         #endregion
     }
 }
-

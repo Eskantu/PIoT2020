@@ -9,7 +9,6 @@ namespace PIoT2020.Shared.Tools
 {
     public static class Tools
     {
-        public static FactoryManager factoryManager = new FactoryManager();
         public static Usuario usuario = new Usuario();
     }
 }

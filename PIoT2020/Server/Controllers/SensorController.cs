@@ -17,5 +17,11 @@ namespace PIoT2020.Server.Controllers
         public SensorController() : base(new GenericRepository<Sensor>())
         {
         }
+
+        [HttpGet("GetSensoresPorDispositivo")] 
+        public async Task<List<Sensor>> GetSensoresPorDispositivo(string idDispositivo)
+        {
+          return  _genericRepository.Read.Where(p => p.IdDispositivo == idDispositivo).ToList();
+        }
     }
 }

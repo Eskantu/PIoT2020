@@ -6,11 +6,13 @@ using System.Text;
 
 namespace PIoT2020.BIZ
 {
-   public class FactoryRepository<T> where T:BaseDTO
+    public class FactoryRepository<T> where T : BaseDTO
     {
         string _origen;
-        public FactoryRepository(string Origen="Mongo")
+        COMMON.Enumeraciones.ClientAPI _clientAPI;
+        public FactoryRepository(COMMON.Enumeraciones.ClientAPI clientAPI,string Origen = "Mongo")
         {
+            _clientAPI = clientAPI;
             _origen = Origen;
         }
 
@@ -21,7 +23,7 @@ namespace PIoT2020.BIZ
             {
                 case "API":
                     Error = "";
-                    return new PIoT2020.DAL.API.GenericRepository<T>();
+                    return new PIoT2020.DAL.API.GenericRepository<T>(_clientAPI);
                 case "Mongo":
                     Error = "";
                     return new PIoT2020.DAL.GenericRepository<T>();

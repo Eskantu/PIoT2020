@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Com.OneSignal;
 
 namespace PIoT2020.Movil.Droid
 {
@@ -24,7 +25,8 @@ namespace PIoT2020.Movil.Droid
             Window.SetStatusBarColor(Android.Graphics.Color.Black);
             Window.SetNavigationBarColor(Android.Graphics.Color.Black);
             XF.Material.Droid.Material.Init(this, savedInstanceState);
-            
+            OneSignal.Current.StartInit("238118d4-da17-4dc2-94cf-31ca9df6a7ed")
+                 .EndInit();
 
             global::Xamarin.Forms.FormsMaterial.Init(this, savedInstanceState);
             LoadApplication(new App());

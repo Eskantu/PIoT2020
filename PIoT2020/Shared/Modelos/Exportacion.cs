@@ -8,7 +8,6 @@ namespace PIoT2020.Shared.Modelos
     {
         public int NumeroRegistro { get; set; }
         public DateTime FechaHoraCreacion { get; set; }
-        public string Sensor { get; set; }
-        public string Valor { get; set; }
+        public decimal Valor { get; set; }
     }
 }

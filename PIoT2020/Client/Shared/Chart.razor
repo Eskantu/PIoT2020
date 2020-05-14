@@ -1,0 +1,27 @@
+﻿@inject Microsoft.JSInterop.IJSRuntime JS
+<div id="chart" style="height:150px; width:100%"></div>
+
+@functions{
+
+    [Parameter]
+    public COMMON.ChartType Type { get; set; }
+
+    [Parameter]
+    public IEnumerable<object> DataSource { get; set; }
+
+    [Parameter]
+    public string XKey { get; set; }
+
+    [Parameter]
+    public string YKeys { get; set; }
+
+    [Parameter]
+    public string Labels { get; set; }
+
+
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+       await JS.InitializeChart("chart", DataSource.ToArray(), XKey, YKeys.Split(','), Labels.Split(','));
+    }
+}

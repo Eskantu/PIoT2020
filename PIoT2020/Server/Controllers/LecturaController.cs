@@ -43,19 +43,16 @@ namespace PIoT2020.Server.Controllers
         }
 
         [HttpGet("GetModel")]
-        public async Task<List<LecturaModel>> GetModel(string idDispositivo)
+        public async Task<List<LecturaModel>> GetModel(string idSensor)
         {
             List<LecturaModel> lecturaModels = new List<LecturaModel>();
             HttpClient httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/");
-            var sensores = httpClient.GetJsonAsync<List<Sensor>>("Sensor").Result.Where(p => p.IdDispositivo == idDispositivo).ToList();
-            foreach (Sensor sensor in sensores)
+            var sensor = httpClient.GetJsonAsync<Sensor>($"Sensor/{idSensor}").Result;
+            var lecturas = _genericRepository.Read.Where(p => p.IdSensor == idSensor).ToList();
+            foreach (Lectura lectura in lecturas)
             {
-                var lecturas = httpClient.GetJsonAsync<List<Lectura>>("Lectura").Result.Where(p => p.IdSensor == sensor.Id).ToList();
-                foreach (Lectura lectura in lecturas)
-                {
-                    lecturaModels.Add(new LecturaModel() { EntidadPrincipal = lectura, Sensor = sensor });
-                }
+                lecturaModels.Add(new LecturaModel() { EntidadPrincipal = lectura, Sensor = sensor });
             }
             return lecturaModels;
         }

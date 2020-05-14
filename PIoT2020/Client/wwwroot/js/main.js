@@ -1,23 +1,4 @@
-const inputs = document.querySelectorAll(".input");
 
-
-function addcl(){
-	let parent = this.parentNode.parentNode;
-	parent.classList.add("focus");
-}
-
-function remcl(){
-	let parent = this.parentNode.parentNode;
-	if(this.value == ""){
-		parent.classList.remove("focus");
-	}
-}
-
-
-inputs.forEach(input => {
-	input.addEventListener("focus", addcl);
-	input.addEventListener("blur", remcl);
-});
 
 function saveAsFile(filename, bytesBase64) {
     if (navigator.msSaveBlob) {
@@ -38,4 +19,36 @@ function saveAsFile(filename, bytesBase64) {
         link.click();
         document.body.removeChild(link);
     }
+}
+
+var morris;
+function LineChart(idElement, data, XKey, yKeys, labels) {
+    var divPadre = document.getElementById(idElement);
+    if (divPadre.hasChildNodes()) {
+        var antiguoHijo = document.getElementById("grafica");
+        divPadre.removeChild(antiguoHijo);
+    }
+    else {
+    }
+    var divHijo = document.createElement("div");
+    divHijo.id = "grafica";
+    divPadre.appendChild(divHijo);
+
+    morris = new Morris.Line({
+        // ID of the element in which to draw the chart.
+        element: "grafica",
+        // Chart data records -- each entry in this array corresponds to a point on
+        // the chart.
+        data: data,
+        // The name of the data record attribute that contains x-values.
+        xkey: XKey,
+        // A list of names of data record attributes that contain y-values.
+        ykeys: yKeys,
+        // Labels for the ykeys -- will be displayed when you hover over the
+        // chart.
+        labels: labels
+    });
+    console.log(divHijo);
+    
+
 }

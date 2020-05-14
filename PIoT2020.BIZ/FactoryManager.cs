@@ -9,8 +9,10 @@ namespace PIoT2020.BIZ
     public class FactoryManager
     {
         public string Origen { get; private set; }
-        public FactoryManager(string origen="Mongo")
+        COMMON.Enumeraciones.ClientAPI _clientAPI;
+        public FactoryManager(COMMON.Enumeraciones.ClientAPI clientAPI, string origen="Mongo")
         {
+            _clientAPI = clientAPI;
             Origen = origen;
             //object[] repositorios = new object[] { new FactoryRepository<Actuador>(origen), new FactoryRepository<Dispositivo>(origen), new FactoryRepository<Lectura>(origen), new FactoryRepository<Proyecto>(origen), new FactoryRepository<Sensor>(origen), new FactoryRepository<TipoUsuario>(origen), new FactoryRepository<Usuario>(origen) };
             //foreach (object item in repositorios)
@@ -20,13 +22,13 @@ namespace PIoT2020.BIZ
             switch (origen)
             {
                 case "API":
-                    _actuadorManager = new ActuadorManager(new  DAL.API.GenericRepository<Actuador>());
-                    _dispositivoManager = new DispositivoManager(new DAL.API.GenericRepository<Dispositivo>());
-                    _lecturaManager = new LecturaManager(new DAL.API.GenericRepository<Lectura>());
-                    _proyectoManager = new ProyectoManager(new DAL.API.GenericRepository<Proyecto>());
-                    _sensorManager = new SensorManager(new DAL.API.GenericRepository<Sensor>());
-                    _tipoUsuarioManager = new TipoUsuarioManager(new DAL.API.GenericRepository<TipoUsuario>());
-                    _usuarioManager = new UsuarioManager(new DAL.API.GenericRepository<Usuario>());
+                    _actuadorManager = new ActuadorManager(new  DAL.API.GenericRepository<Actuador>(_clientAPI));
+                    _dispositivoManager = new DispositivoManager(new DAL.API.GenericRepository<Dispositivo>(_clientAPI));
+                    _lecturaManager = new LecturaManager(new DAL.API.GenericRepository<Lectura>(_clientAPI));
+                    _proyectoManager = new ProyectoManager(new DAL.API.GenericRepository<Proyecto>(_clientAPI));
+                    _sensorManager = new SensorManager(new DAL.API.GenericRepository<Sensor>(_clientAPI));
+                    _tipoUsuarioManager = new TipoUsuarioManager(new DAL.API.GenericRepository<TipoUsuario>(_clientAPI));
+                    _usuarioManager = new UsuarioManager(new DAL.API.GenericRepository<Usuario>(_clientAPI));
                     break;
                 case "Mongo":
                     _actuadorManager = new ActuadorManager(new DAL.GenericRepository<Actuador>());
