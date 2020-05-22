@@ -13,12 +13,13 @@ using System.Globalization;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using PIoT2020.COMMON.Modelos;
 
 namespace PIoT2020.Shared.Tools
 {
     public static class ExportacionToFile
     {
-        public static async Task<bool> CrearPDF(this IJSRuntime js, List<Exportacion> datos, string proyecto, Sensor sensor, string tipo)
+        public static async Task<bool> CreateFile(this IJSRuntime js, List<Exportacion> datos, string proyecto, Sensor sensor, string tipo)
         {
 
             try
@@ -106,5 +107,7 @@ namespace PIoT2020.Shared.Tools
                 await js.SaveAs($"PIoT2020{DateTime.Now.ToString()}.pdf", bytes);
             }
         }
+
+       
     }
 }

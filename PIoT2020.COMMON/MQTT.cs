@@ -22,6 +22,26 @@ namespace PIoT2020.COMMON
             {
                 Thread.Sleep(1000);
             }
+            CrearEventos();
+        }
+
+        public void CrearEventos()
+        {
+            clienteMqtt.MessageReceived += ClienteMqtt_MessageReceived;
+            clienteMqtt.Connected += ClienteMqtt_Connected;
+            clienteMqtt.Disconnected += ClienteMqtt_Disconnected;
+        }
+
+        public MQTT(string broker, int puerto, string idDispositivo, string username, string passowrd)
+        {
+            _broker = broker;
+            _device = idDispositivo;
+            clienteMqtt = new MQTTClient(broker, puerto);
+            clienteMqtt.Connect(idDispositivo,username,passowrd);
+            while (!clienteMqtt.IsConnected)
+            {
+                Thread.Sleep(1000);
+            }
             clienteMqtt.MessageReceived += ClienteMqtt_MessageReceived;
             clienteMqtt.Connected += ClienteMqtt_Connected;
             clienteMqtt.Disconnected += ClienteMqtt_Disconnected;

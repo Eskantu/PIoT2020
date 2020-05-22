@@ -1,0 +1,270 @@
+﻿@page "/MQTT"
+@using OpenNETCF.MQTT;
+@using System.Threading;
+
+@code {
+    ConnectionMQTT connectionMQTTModel = new ConnectionMQTT();
+    async Task ConnectarDesconectarMQTT()
+    {
+        if (connectionMQTTModel.Connectado)
+        {
+            connectionMQTTModel.Connectado = !connectionMQTTModel.Connectado;
+            await MQTTConnection.Desconectar();
+            Console.WriteLine("No Connectado");
+        }
+        else
+        {
+            Console.WriteLine("Connectado");
+            await MQTTConnection.Conectar(connectionMQTTModel.Host, int.Parse(connectionMQTTModel.Port), connectionMQTTModel.ClientID);
+            connectionMQTTModel.Connectado = !connectionMQTTModel.Connectado;
+        }
+    }
+    async Task AgregarSuscripcion()
+    {
+        await MQTTConnection.Suscribirse(connectionMQTTModel.Topic);
+    }
+}
+<div class="background-mqtt">
+    <h2 class="mqtt" style="margin-left: 100px">Conexiones PIoT</h2>
+    <div class="jumbotron jumbotron-fluid divMqtt">
+        <h4 class="tittleDiv">Connect</h4>
+        <div class="container">
+            <EditForm Model="connectionMQTTModel">
+                <div class="row">
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Host</label>
+                        </div>
+                        <div class="row">
+                            <InputText @bind-Value="@connectionMQTTModel.Host" class="input-mqtt" />
+                        </div>
+                    </div>
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Port</label>
+                        </div>
+                        <div class="row">
+                            <InputText @bind-Value="@connectionMQTTModel.Port" class="input-mqtt" />
+                        </div>
+                    </div>
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Client ID</label>
+                        </div>
+                        <div class="row">
+                            <InputText @bind-Value="@connectionMQTTModel.ClientID" class="input-mqtt" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Username</label>
+                        </div>
+                        <div class="row">
+                            <InputText @bind-Value="@connectionMQTTModel.Username" class="input-mqtt" id="host" />
+                        </div>
+                    </div>
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Password</label>
+                        </div>
+                        <div class="row">
+                            <InputText @bind-Value="@connectionMQTTModel.Password" class="input-mqtt" />
+                        </div>
+                    </div>
+                    <div class="col col-sm">
+                        <label class="switch switch-left-right">
+                            <input type="checkbox" value="@connectionMQTTModel.Connectado" @onchange="ConnectarDesconectarMQTT" class="switch-input" />
+                            <span class="switch-label" data-on="Connect" data-off="Disconnect"></span>
+                            <span class="switch-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </EditForm>
+
+        </div>
+
+    </div>
+    <div class="jumbotron jumbotron-fluid divMqtt">
+        <h4 class="tittleDiv">Subscripciones</h4>
+        <div class="container">
+            <div class="row">
+                <label class="label-mqtt">Topic</label>
+            </div>
+            <div class="row">
+                <EditForm Model="connectionMQTTModel">
+                <InputText  class="input-mqtt" type="text" @bind-Value="@connectionMQTTModel.Topic" />
+                <button @onclick="AgregarSuscripcion" style="width:150px; margin:0px 0px 0px 20px" class="btn btn-success">Suscribe</button>
+                </EditForm>
+            </div>
+            <div class="row">
+                <label class="label-mqtt">Subscripciones activas</label>
+            </div>
+            <div class="row tableScroll">
+
+                <table class="table table-hover table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Id</th>
+                            <th scope="col">Fecha hora</th>
+                            <th scope="col">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>mdo</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>mdo</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>mdo</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>mdo</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="jumbotron jumbotron-fluid divMqtt">
+        <h4 class="tittleDiv">Mensajes</h4>
+        <div class="container">
+            <div class="row">
+                <div class="col col-sm">
+                    <div class="row">
+                        <label class="label-mqtt">Topic</label>
+                    </div>
+                    <div class="row">
+                        <input class="input-mqtt" type="text">
+                    </div>
+                </div>
+                <div class="col col-sm">
+                    <div class="row">
+                        <label class="label-mqtt">Mensaje</label>
+                    </div>
+                    <div class="row">
+                        <input class="input-mqtt" type="text">
+                    </div>
+                </div>
+                <div class="col col-sm">
+                    <button style="margin:28px 0px 0px 0px; width: 200px;" class="btn btn-success">Enviar</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-sm" style="margin:0px 10px 0px 0px">
+                    <div class="row">
+                        <label class="label-mqtt">Enviados</label>
+                    </div>
+                    <div class="row tableScroll">
+
+                        <table class="table table-hover table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Fecha hora</th>
+                                    <th scope="col">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col col-sm" style="margin:0px 0px 0px 10px">
+                    <div class="row">
+                        <label class="label-mqtt">Recibidos</label>
+                    </div>
+                    <div class="row tableScroll">
+
+                        <table class="table table-hover table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Fecha hora</th>
+                                    <th scope="col">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Otto</td>
+                                    <td>mdo</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

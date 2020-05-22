@@ -75,7 +75,7 @@ namespace Admin
                         PoblarDispositivo(Id);
                         break;
                     case "3":
-                        RealizarSimulacion();
+                       // PIoT2020.BIZ.Tools.RealizarSimulacion();
                         break;
                     case "4":
                         enPrograma = false;
@@ -134,158 +134,8 @@ namespace Admin
                 Console.ReadLine();
             }
         }
-        public static void RealizarSimulacion(int usuariosAGenerar = 2000, int diasAPoblar = 30, int dispositivosAGenerar = 10000)
-        {
-            decimal temperaturaHidalgo = 30;
-            decimal lumenes = 25;
-            decimal cmsUltrasonico = 25;
-            //Usuarios, crear nueva lista de usuarios.
-            List<Usuario> usuarios = new List<Usuario>();
-            Usuario nuevoUsuario;
-            TipoUsuario nuevoTipoUsuario;
-            Random r = new Random();
-            usuarios = _usuarioManager.ObtenerTodos.ToList();
-            if (usuarios.Count < usuariosAGenerar)
-            {
+        
 
-                for (int usuarioNumero = 0; usuarioNumero < usuariosAGenerar; usuarioNumero++)
-                {
-                    nuevoTipoUsuario = _tipoUsuarioManager.Consulta(t => t.Name == "General").SingleOrDefault();
-
-                    nuevoUsuario = _usuarioManager.Crear(new Usuario()
-                    {
-                        UsuarioName = "Usuario " + usuarioNumero,
-                        Password = "P" + r.Next(1, 999) + "A" + r.Next(1, 999) + "S" + r.Next(1, 999) + "S" + r.Next(1, 999),
-                        TipoUsuario = nuevoTipoUsuario.Id
-                    });
-                    usuarios.Add(nuevoUsuario);
-                }
-            }
-            string usuariosCSV = ExportarTablaUsuarios(usuarios);//Exportar tabla usuarios a CSV.
-            Imprimir(usuariosCSV);//Imprimir tabla usuarios.
-            Console.WriteLine($"{usuarios.Count} usurios creados Creados");
-
-            //Entidades para la simulación.
-            Proyecto proyectoNuevo;
-            Dispositivo dispositivoNuevo;
-            Sensor dht11Nuevo;
-            Sensor ultrasonico;
-            Sensor fotoresistenciaNuevo;
-
-            //Días.
-            for (int i = 0; i < diasAPoblar; i++)
-            {
-                Console.WriteLine($"Dia: {i}");
-                //Dispositivos.
-                int dispositivos = 0;
-                while (dispositivos <= dispositivosAGenerar)
-                {
-                    //Usuarios por cada usuario.
-                    foreach (var usuarioActual in usuarios)
-                    {
-                        //Proyectos, proyecto nuevo.
-
-                        proyectoNuevo = _proyectoManager.Crear(new Proyecto { Name = "Proyecto " + usuarioActual.UsuarioName, Descripcion = "Lectura datos " + usuarioActual.Id, IdUsuario=usuarioActual.Id });
-
-
-                        //Número de dispositivos por usuario.
-                        GeneradorCongruencialLineal(6, out decimal numeroDispositivos);
-                        for (int j = 0; j < (int)numeroDispositivos; j++)
-                        {
-                            //Dispositivo nuevo.
-                            dispositivoNuevo = _dispositivoManager.Crear(new Dispositivo { Name = "Dispositivo " + (j + 1), Descripcion = "Disp. Usuario " + usuarioActual.UsuarioName + "0" + j, IdProyecto = proyectoNuevo.Id });
-                            dispositivos++;
-
-                            //Sensores
-                            dht11Nuevo = _sensorManager.Crear(new Sensor { Name = "DHT11 " + (j + 1), UnidadDeMedida = "°C", IdDispositivo = dispositivoNuevo.Id });
-                            fotoresistenciaNuevo = _sensorManager.Crear(new Sensor { Name = "Fotoresistencia " + (j + 1), UnidadDeMedida = "LUX", IdDispositivo = dispositivoNuevo.Id });
-                            ultrasonico = _sensorManager.Crear(new Sensor { Name = "Ultrasonico " + (j + 1), UnidadDeMedida = "CM", IdDispositivo = dispositivoNuevo.Id });
-
-                            //Tres lecturas al día XD
-
-                            for (int k = 0; k < 3; k++)
-                            {
-                                GeneradorCongruencialLineal(30, out temperaturaHidalgo);
-                                GeneradorCongruencialLineal(25, out lumenes);
-                                GeneradorCongruencialLineal(25, out cmsUltrasonico);
-
-                                _lecturaManager.Crear(new Lectura { IdSensor = dht11Nuevo.Id, Value = temperaturaHidalgo });
-                                _lecturaManager.Crear(new Lectura { IdSensor = fotoresistenciaNuevo.Id, Value = lumenes });
-                                _lecturaManager.Crear(new Lectura { IdSensor = ultrasonico.Id, Value = cmsUltrasonico });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        private static void Imprimir(string usuariosCSV)
-        {
-            try
-            {
-                string? ruta = AppDomain.CurrentDomain.BaseDirectory;
-                if (string.IsNullOrEmpty(ruta))
-                {
-                    Console.WriteLine("No se puede guardar el archivo..");
-                    return;
-                }
-                if (Directory.Exists(ruta))
-                {
-                    StreamWriter archivo = new StreamWriter(ruta+ $@"Simulacion.csv");
-                    archivo.Write(usuariosCSV);
-                    archivo.Close();
-                    Console.WriteLine("Archivo generado correctamente.");
-                }
-                else
-                {
-                    Console.WriteLine("La ruta no fue encontrada.");
-                }
-            }
-            catch (Exception ex)
-            {
-
-                Console.WriteLine(ex.Message);
-            }
-        }
-        private static string ExportarTablaUsuarios(List<Usuario> usuarios)
-        {
-            string salida = "";
-            foreach (var usuario in _usuarioManager.ObtenerTodos)
-            {
-                salida += usuario.UsuarioName + ", " + usuario.Password + "\r\n";
-            }
-            return salida;
-        }
-
-        #region Generadores de variables aleatorias.
-        /// <summary>
-        /// Regresa un verdadero o falso, tomando en cuenta una distribución de probabilidad Binomial / Bernoulli.
-        /// </summary>
-        /// <param name="valor">Valor determinante y limitante.</param>
-        /// <returns>Verdadero o Falso.</returns>
-        private static bool GeneradorBernoulli(int valor = 50)
-        {
-            GeneradorCongruencialLineal(valor * 2, out decimal congruencial);
-            return 0 <= (int)congruencial && (int)congruencial < valor;//Verdadero o en otro caso Falso.
-        }
-
-        /// <summary>
-        /// Produce una secuencia de números enteros Xi entre 0 y m - 1.
-        /// </summary>
-        /// <param name="m">Módulo.</param>
-        /// <param name="congruencial">Variable aleatoria siguiente semilla.</param>
-        /// <returns>Valor aleatorio entre 0 y m - 1.</returns>
-        private static decimal GeneradorCongruencialLineal(decimal m, out decimal congruencial)
-        {
-            Random r = new Random();
-            decimal a = r.Next(1, 101);
-            decimal b = r.Next(1, 101);
-            decimal x0 = (decimal)r.NextDouble();
-            x0 = a * x0;
-            x0 += b;
-            x0 %= m;
-            congruencial = x0;
-            return x0 / m;
-        }
-        #endregion
+        
     }
 }

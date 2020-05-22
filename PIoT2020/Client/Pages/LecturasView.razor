@@ -8,6 +8,7 @@
     [Parameter]
     public string IdDispositivo { get; set; }
     string nameDevice = "";
+    string sensorName = "";
     List<LecturaModel> lecturaModels = new List<LecturaModel>();
     List<Exportacion> exportacions = new List<Exportacion>();
     List<ChartModel> charts = new List<ChartModel>();
@@ -34,17 +35,19 @@
             exportacions.Add(new Exportacion() { NumeroRegistro = (i + 1), FechaHoraCreacion = lecturaModels[i].EntidadPrincipal.FechaHoraCreacion, Valor = lecturaModels[i].EntidadPrincipal.Value });
             charts.Add(new ChartModel() { year = lecturaModels[i].EntidadPrincipal.FechaHoraCreacion, value = lecturaModels[i].EntidadPrincipal.Value });
         }
+        sensorName=sensor.Name + "->"+sensor.Id;
         await JS.InvokeAsync<object>("LineChart", "Chart", charts.ToArray(), "year", "value".Split(','), sensorSeleccionado.UnidadDeMedida.Split(','));
     }
 
     async Task DescargarLecturas(string tipo)
     {
-        await JS.CrearPDF(exportacions,"Demo",sensorSeleccionado,tipo);
+        await JS.CreateFile(exportacions, "Demo", sensorSeleccionado, tipo);
     }
 }
 
 <div class="jumbotron-fluid">
     <h1>Lecturas de @nameDevice </h1>
+    <strong>Lecturas de @sensorName </strong>
     <div class="row">
         <div class="dropdown">
             <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

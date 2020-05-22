@@ -1,14 +1,37 @@
 ﻿@page "/DashboardAdministrador"
 @using Microsoft.AspNetCore.Authorization;
 @attribute [Authorize]
-
+@inject HttpClient httpClient
+@inject IJSRuntime JS
+@using System.IO;
+@using System.Threading;
 @code {
-    SimulacionModel sm = new SimulacionModel();
+    SimulacionFormModel sm = new SimulacionFormModel();
+    List<SimulacionModel> simulacion = new List<SimulacionModel>();
     string mensaje = "Poblando día 30";
 
     async Task IniciarSimulacion()
     {
-
+        JS.Load();
+        //simulacion = await httpClient.GetJsonAsync< List<SimulacionModel>>($"Simulacion/simular?usuarios={sm.NumeroUsuarios}&dias={sm.Dias}&dispositivosPorUsuario={sm.DispositvosPorUsuario}");
+        List<Usuario> usuarios = await httpClient.GetJsonAsync<List<Usuario>>("Usuario");
+        Console.WriteLine(simulacion.Count());
+        Thread.Sleep(60000);
+        JS.LoadFinished("Simulacion terminada", $"Usuarios creados: {usuarios.Count}");
+        using (var memory = new MemoryStream())
+        {
+            using (var writer = new StreamWriter(memory))
+            {
+                foreach (var exportacion in usuarios)
+                {
+                    writer.WriteLine($"{exportacion.UsuarioName},{exportacion.Password}");
+                }
+                writer.Close();
+                var arr = memory.ToArray();
+                await JS.SaveAs($"Sumulacion-{DateTime.Now.ToString()}.csv", arr);
+            }
+        }
+        //Console.WriteLine( JS.ExportOptions().Result.ToString());
     }
 }
 <div class="jumbotron">
@@ -35,7 +58,12 @@
                                     <label for="exampleInputPassword1">Numero de usuarios a generar</label>
                                     <InputNumber @bind-Value="sm.NumeroUsuarios" TValue="int" min="1" class="form-control" id="exampleInputPassword1" />
                                 </div>
+                                <div class="form-group">
+                                    <label for="dispositivosPorUsuario">Numero de dispositivos por usuario</label>
+                                    <InputNumber @bind-Value="sm.DispositvosPorUsuario" TValue="int" min="1" class="form-control" id="dispositivosPorUsuario" />
+                                </div>
                             </EditForm>
+                            <button @onclick="IniciarSimulacion" class="btn btn-success">Iniciar simulación</button>
                         </div>
                         <div class="col-sm-2">
                             <img src="img/Logo.svg" style="width:60px; height:60px; top:50px" />
@@ -43,7 +71,6 @@
                         <div class="col-sm-5">
                             <h1>Tabla</h1>
                         </div>
-                        <button @onclick="IniciarSimulacion" type="submit" class="btn btn-success">Iniciar simulación</button>
                     </div>
                 </div>
             </div>

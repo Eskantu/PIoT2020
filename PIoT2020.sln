@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIoT2020.Movil.iOS", "PIoT2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PIoT2020.Movil", "PIoT2020.Movil\PIoT2020.Movil\PIoT2020.Movil.csproj", "{17D6EF59-A1AC-47AA-BB5F-12240F035B34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Admin", "Admin\Admin.csproj", "{2C949EF6-E4DF-4E8A-8EEB-149D9CBC6732}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Admin", "Admin\Admin.csproj", "{2C949EF6-E4DF-4E8A-8EEB-149D9CBC6732}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -52,3 +52,58 @@ function LineChart(idElement, data, XKey, yKeys, labels) {
     
 
 }
+
+function Load() {
+    Swal.fire({
+        title: '',
+        width: 0,
+        padding: '3em',
+        showConfirmButton: false,
+        background: 'rgba(211,84,0,0)',
+        backdrop: `
+          rgba(0,0,0,0.2)
+          url("../img/Load.gif")
+          center
+          no-repeat
+        `
+    })
+}
+
+function LoadFinished(titulo, text) {
+    Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: titulo,
+        text: text,
+        footer: 'PIoT2020',
+        showConfirmButton: true,
+    })
+}
+
+async function ExportOptions() {
+    const { value: fruit } = await Swal.fire({
+        title: 'Select field validation',
+        input: 'select',
+        inputOptions: {
+            apples: 'Apples',
+            bananas: 'Bananas',
+            grapes: 'Grapes',
+            oranges: 'Oranges'
+        },
+        inputPlaceholder: 'Select a fruit',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            return new Promise((resolve) => {
+                if (value === 'oranges') {
+                    resolve()
+                } else {
+                    resolve('You need to select oranges :)')
+                }
+            })
+        }
+    })
+
+    if (fruit) {
+        Swal.fire(`You selected: ${fruit}`)
+    }
+}
