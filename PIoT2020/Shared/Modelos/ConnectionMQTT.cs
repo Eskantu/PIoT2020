@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PIoT2020.Shared.Tools;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,8 +13,12 @@ namespace PIoT2020.Shared.Modelos
         public string ClientID { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public string Topic { get; set; }
+        public string TopicSubscribe { get; set; }
+        public string TopicPublish { get; set; }
         public string Mensaje { get; set; }
+        public List<PayloadData> Data { get; set; }
+        public List<PayloadData> Messages { get; set; }
+        public List<string> Susbscripcions { get; set; }
 
     }
 }

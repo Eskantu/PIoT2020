@@ -1,31 +1,89 @@
 ﻿@page "/MQTT"
-@using OpenNETCF.MQTT;
-@using System.Threading;
-
+@inject Microsoft.JSInterop.IJSRuntime JS
 @code {
     ConnectionMQTT connectionMQTTModel = new ConnectionMQTT();
-    async Task ConnectarDesconectarMQTT()
+
+
+    protected string ConnectionStatus { get; set; }
+    protected bool IsDisabled { get; set; }
+
+    public void PublishMessage()
     {
-        if (connectionMQTTModel.Connectado)
+        if (!string.IsNullOrWhiteSpace(connectionMQTTModel.Mensaje))
         {
-            connectionMQTTModel.Connectado = !connectionMQTTModel.Connectado;
-            await MQTTConnection.Desconectar();
-            Console.WriteLine("No Connectado");
-        }
-        else
-        {
-            Console.WriteLine("Connectado");
-            await MQTTConnection.Conectar(connectionMQTTModel.Host, int.Parse(connectionMQTTModel.Port), connectionMQTTModel.ClientID);
-            connectionMQTTModel.Connectado = !connectionMQTTModel.Connectado;
+            JS.Publish(connectionMQTTModel.TopicPublish, connectionMQTTModel.Mensaje);
+            connectionMQTTModel.Mensaje = "";
+            this.StateHasChanged();
         }
     }
-    async Task AgregarSuscripcion()
+
+    void Connect()
     {
-        await MQTTConnection.Suscribirse(connectionMQTTModel.Topic);
+        IsDisabled = true;
+        connectionMQTTModel.Connectado = true;
+        JS.CreateClient(connectionMQTTModel.Host, int.Parse(connectionMQTTModel.Port), connectionMQTTModel.ClientID, true);
+        this.StateHasChanged();
     }
+    void AgregarSuscripcion()
+    {
+
+        JS.Subscribe(connectionMQTTModel.TopicSubscribe, 0);
+        connectionMQTTModel.Susbscripcions.Insert(0, connectionMQTTModel.TopicSubscribe);
+        connectionMQTTModel.TopicSubscribe = "";
+    }
+
+    void Publish()
+    {
+        JS.Publish(connectionMQTTModel.TopicPublish, connectionMQTTModel.Mensaje);
+        connectionMQTTModel.Messages.Insert(0, new PayloadData(connectionMQTTModel.TopicPublish, connectionMQTTModel.Mensaje));
+
+    }
+
+    protected override void OnInitialized()
+    {
+        ConnectionStatus = "Not connected";
+        if (connectionMQTTModel.Data == null)
+        {
+            connectionMQTTModel.Data = new List<PayloadData>();
+        }
+        if (connectionMQTTModel.Susbscripcions == null)
+        {
+            connectionMQTTModel.Susbscripcions = new List<string>();
+        }
+        if (connectionMQTTModel.Messages == null)
+        {
+            connectionMQTTModel.Messages = new List<PayloadData>();
+        }
+
+        OnConnectionChanged.Action = value =>
+        {
+            ConnectionStatus = $"{value}";
+            if (value=="Desconnected")
+            {
+                connectionMQTTModel.Connectado = false;
+            }
+            else
+            {
+                connectionMQTTModel.Connectado = true;
+            }
+            this.StateHasChanged();
+        };
+
+
+        OnMessageReceived.Action = (key, data) =>
+        {
+
+            var rabbitDataItem = new PayloadData(key, data);
+            connectionMQTTModel.Data.Insert(0, rabbitDataItem);
+
+            this.StateHasChanged();
+        };
+    }
+
+
 }
 <div class="background-mqtt">
-    <h2 class="mqtt" style="margin-left: 100px">Conexiones PIoT</h2>
+    <h2 class="mqtt" style="margin-left: 100px"><strong>Conexiones PIoT @ConnectionStatus</strong></h2>
     <div class="jumbotron jumbotron-fluid divMqtt">
         <h4 class="tittleDiv">Connect</h4>
         <div class="container">
@@ -76,8 +134,8 @@
                     </div>
                     <div class="col col-sm">
                         <label class="switch switch-left-right">
-                            <input type="checkbox" value="@connectionMQTTModel.Connectado" @onchange="ConnectarDesconectarMQTT" class="switch-input" />
-                            <span class="switch-label" data-on="Connect" data-off="Disconnect"></span>
+                            <input type="checkbox" value="@connectionMQTTModel.Connectado" @onchange="Connect" class="switch-input" />
+                            <span class="switch-label" data-on="On" data-off="Off"></span>
                             <span class="switch-handle"></span>
                         </label>
                     </div>
@@ -95,49 +153,29 @@
             </div>
             <div class="row">
                 <EditForm Model="connectionMQTTModel">
-                <InputText  class="input-mqtt" type="text" @bind-Value="@connectionMQTTModel.Topic" />
-                <button @onclick="AgregarSuscripcion" style="width:150px; margin:0px 0px 0px 20px" class="btn btn-success">Suscribe</button>
+                    <InputText class="input-mqtt" type="text" @bind-Value="@connectionMQTTModel.TopicSubscribe" />
+                    <button @onclick="AgregarSuscripcion" style="width:150px; margin:0px 0px 0px 20px" class="btn btn-success">Suscribe</button>
                 </EditForm>
             </div>
             <div class="row">
                 <label class="label-mqtt">Subscripciones activas</label>
             </div>
             <div class="row tableScroll">
-
                 <table class="table table-hover table-dark">
                     <thead>
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Id</th>
+                            <th scope="col">Topic</th>
                             <th scope="col">Fecha hora</th>
-                            <th scope="col">Valor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>mdo</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>mdo</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>mdo</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>mdo</td>
-                        </tr>
+                        @foreach (var item in connectionMQTTModel.Susbscripcions)
+                        {
+                            <tr>
+                                <th scope="row">@item</th>
+                                <td>@DateTime.Now.ToString("HH:MM:ss")</td>
+                            </tr>
+                        }
 
                     </tbody>
                 </table>
@@ -150,28 +188,30 @@
         <h4 class="tittleDiv">Mensajes</h4>
         <div class="container">
             <div class="row">
-                <div class="col col-sm">
-                    <div class="row">
-                        <label class="label-mqtt">Topic</label>
+                <EditForm Model="connectionMQTTModel">
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Topic</label>
+                        </div>
+                        <div class="row">
+                            <InputText class="input-mqtt" @bind-Value="@connectionMQTTModel.TopicPublish" />
+                        </div>
                     </div>
-                    <div class="row">
-                        <input class="input-mqtt" type="text">
+                    <div class="col col-sm">
+                        <div class="row">
+                            <label class="label-mqtt">Mensaje</label>
+                        </div>
+                        <div class="row">
+                            <InputText class="input-mqtt" @bind-Value="@connectionMQTTModel.Mensaje" />
+                        </div>
                     </div>
-                </div>
-                <div class="col col-sm">
-                    <div class="row">
-                        <label class="label-mqtt">Mensaje</label>
+                    <div class="col col-sm">
+                        <button @onclick="Publish" style="margin:28px 0px 0px 0px; width: 200px;" class="btn btn-success">Enviar</button>
                     </div>
-                    <div class="row">
-                        <input class="input-mqtt" type="text">
-                    </div>
-                </div>
-                <div class="col col-sm">
-                    <button style="margin:28px 0px 0px 0px; width: 200px;" class="btn btn-success">Enviar</button>
-                </div>
+                </EditForm>
             </div>
             <div class="row">
-                <div class="col col-sm" style="margin:0px 10px 0px 0px">
+                <div class="col col-sm" style="margin:0px 0px 0px 10px">
                     <div class="row">
                         <label class="label-mqtt">Enviados</label>
                     </div>
@@ -180,37 +220,21 @@
                         <table class="table table-hover table-dark">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Id</th>
+                                    <th scope="col">Topic</th>
+                                    <th scope="col">Message</th>
                                     <th scope="col">Fecha hora</th>
-                                    <th scope="col">Valor</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
+
+                                @foreach (var item in connectionMQTTModel.Messages)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.Topic</th>
+                                        <td>@item.Data</td>
+                                        <td>@item.Received</td>
+                                    </tr>
+                                }
 
                             </tbody>
                         </table>
@@ -226,37 +250,21 @@
                         <table class="table table-hover table-dark">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Id</th>
+                                    <th scope="col">Topic</th>
+                                    <th scope="col">Message</th>
                                     <th scope="col">Fecha hora</th>
-                                    <th scope="col">Valor</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>mdo</td>
-                                </tr>
+
+                                @foreach (var item in connectionMQTTModel.Data)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.Topic</th>
+                                        <td>@item.Data</td>
+                                        <td>@item.Received</td>
+                                    </tr>
+                                }
 
                             </tbody>
                         </table>
