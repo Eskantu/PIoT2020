@@ -39,7 +39,9 @@
 
     }
 
-    protected override void OnInitialized()
+
+
+    protected async override Task OnInitializedAsync()
     {
         ConnectionStatus = "Not connected";
         if (connectionMQTTModel.Data == null)
@@ -58,7 +60,7 @@
         OnConnectionChanged.Action = value =>
         {
             ConnectionStatus = $"{value}";
-            if (value=="Desconnected")
+            if (value == "Desconnected")
             {
                 connectionMQTTModel.Connectado = false;
             }
@@ -79,7 +81,6 @@
             this.StateHasChanged();
         };
     }
-
 
 }
 <div class="background-mqtt">

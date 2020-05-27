@@ -45,7 +45,10 @@ namespace PIoT2020.DAL
             try
             {
                 entidad.Id = ObjectId.GenerateNewId().ToString();
-                entidad.FechaHoraCreacion = DateTime.Now;
+                if (entidad.FechaHoraCreacion == null)
+                {
+                    entidad.FechaHoraCreacion = DateTime.Now;
+                }
                 bool valido = true;
                 Collection().InsertOne(entidad);
                 Error = "";

@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 
 namespace PIoT2020.BIZ
 {
-    public  class Tools
+    public class Tools
     {
-         IActuadorManager _actuadorManager;
-         IDispositivoManager _dispositivoManager;
-         IProyectoManager _proyectoManager;
-         ISensorManager _sensorManager;
-         ITipoUsuarioManager _tipoUsuarioManager;
-         IUsuarioManager _usuarioManager;
-         ILecturaManager _lecturaManager;
-         List<Usuario> usuarios = new List<Usuario>();
-        public  List<SimulacionModel> RealizarSimulacion(int usuariosAGenerar, int diasAPoblar, int dispositivosPorUsuarioAGenerar)
+        IActuadorManager _actuadorManager;
+        IDispositivoManager _dispositivoManager;
+        IProyectoManager _proyectoManager;
+        ISensorManager _sensorManager;
+        ITipoUsuarioManager _tipoUsuarioManager;
+        IUsuarioManager _usuarioManager;
+        ILecturaManager _lecturaManager;
+        List<Usuario> usuarios = new List<Usuario>();
+        public List<SimulacionModel> RealizarSimulacion(int usuariosAGenerar, int diasAPoblar, int dispositivosPorUsuarioAGenerar)
         {
             PIoT2020.BIZ.FactoryManager factory = new PIoT2020.BIZ.FactoryManager(PIoT2020.COMMON.Enumeraciones.ClientAPI.Azure, "Mongo");
             _actuadorManager = factory._actuadorManager;
@@ -39,7 +39,7 @@ namespace PIoT2020.BIZ
             TipoUsuario nuevoTipoUsuario;
             Random r = new Random();
 
-            for (int usuarioNumero = 0; usuarioNumero < usuariosAGenerar; usuarioNumero++)
+            Parallel.For(0, usuariosAGenerar, usuarioNumero =>
             {
                 nuevoTipoUsuario = _tipoUsuarioManager.Consulta(t => t.Name == "General").SingleOrDefault();
 
@@ -50,56 +50,54 @@ namespace PIoT2020.BIZ
                     TipoUsuario = nuevoTipoUsuario.Id
                 });
                 usuarios.Add(nuevoUsuario);
-            }
-
-            //Entidades para la simulación.
-            Proyecto proyectoNuevo;
-            Dispositivo dispositivoNuevo;
-            Sensor dht11Nuevo;
-            Sensor ultrasonico;
-            Sensor fotoresistenciaNuevo;
-
-            //Días.
-            for (int i = 0; i < diasAPoblar; i++)
-            {
-                //Dispositivos.
-                int dispositivos = 0;
-                //Usuarios por cada usuario.
-                foreach (var usuarioActual in usuarios)
+                var proyecto = _proyectoManager.Crear(new Proyecto { Name = "Proyecto " + nuevoUsuario.UsuarioName, Descripcion = "Proyecto simulacion", IdUsuario = nuevoUsuario.Id });
+                for (int i = 0; i < dispositivosPorUsuarioAGenerar; i++)
                 {
-                    //Proyectos, proyecto nuevo.
-
-                    proyectoNuevo = _proyectoManager.Crear(new Proyecto { Name = "Proyecto " + usuarioActual.UsuarioName, Descripcion = "Lectura datos " + usuarioActual.Id, IdUsuario = usuarioActual.Id });
-
-
-                    //Número de dispositivos por usuario.
-                    for (int j = 0; j < dispositivosPorUsuarioAGenerar; j++)
+                    var dipositivo = _dispositivoManager.Crear(new Dispositivo() { Descripcion = $"Dispositivo simulacion No. {i}", Name = $"Simulacion {i}", IdProyecto = proyecto.Id });
+                    _sensorManager.Crear(new Sensor() { IdDispositivo = dipositivo.Id, Name = "DHT11", UnidadDeMedida = "°C" });
+                    _sensorManager.Crear(new Sensor() { IdDispositivo = dipositivo.Id, Name = "PhotoCell", UnidadDeMedida = "Lux" });
+                    _sensorManager.Crear(new Sensor() { IdDispositivo = dipositivo.Id, Name = "Ultrasonico", UnidadDeMedida = "CM" });
+                }
+            });
+            //Días.
+            Parallel.For(0, diasAPoblar, dia =>
+            {
+                foreach (var item in usuarios)
+                {
+                    var proyectoUsurio = _proyectoManager.ObtenerTodos.Where(p => p.IdUsuario == item.Id).ToList();
+                    foreach (var proyecto in proyectoUsurio)
                     {
-                        //Dispositivo nuevo.
-                        dispositivoNuevo = _dispositivoManager.Crear(new Dispositivo { Name = "Dispositivo " + (j + 1), Descripcion = "Disp. Usuario " + usuarioActual.UsuarioName + "0" + j, IdProyecto = proyectoNuevo.Id });
-                        dispositivos++;
-
-                        //Sensores
-                        dht11Nuevo = _sensorManager.Crear(new Sensor { Name = "DHT11 " + (j + 1), UnidadDeMedida = "°C", IdDispositivo = dispositivoNuevo.Id });
-                        fotoresistenciaNuevo = _sensorManager.Crear(new Sensor { Name = "Fotoresistencia " + (j + 1), UnidadDeMedida = "LUX", IdDispositivo = dispositivoNuevo.Id });
-                        ultrasonico = _sensorManager.Crear(new Sensor { Name = "Ultrasonico " + (j + 1), UnidadDeMedida = "CM", IdDispositivo = dispositivoNuevo.Id });
-
-                        //Tres lecturas al día XD
-
-                        for (int k = 0; k < 3; k++)
+                        var dispositivosProyecto = _dispositivoManager.ObtenerTodos.Where(p => p.IdProyecto == proyecto.Id).ToList();
+                        foreach (var disposivo in dispositivosProyecto)
                         {
-                            GeneradorCongruencialLineal(30, out temperaturaHidalgo);
-                            GeneradorCongruencialLineal(25, out lumenes);
-                            GeneradorCongruencialLineal(25, out cmsUltrasonico);
-
-                            _lecturaManager.Crear(new Lectura { IdSensor = dht11Nuevo.Id, Value = temperaturaHidalgo });
-                            _lecturaManager.Crear(new Lectura { IdSensor = fotoresistenciaNuevo.Id, Value = lumenes });
-                            _lecturaManager.Crear(new Lectura { IdSensor = ultrasonico.Id, Value = cmsUltrasonico });
+                            var sensores = _sensorManager.ObtenerTodos.Where(p => p.IdDispositivo == disposivo.Id).ToList();
+                            foreach (var sensor in sensores)
+                            {
+                                for (int k = 0; k < 3; k++)
+                                {
+                                    switch (k)
+                                    {
+                                        case 0:
+                                            GeneradorCongruencialLineal(30, out temperaturaHidalgo);
+                                            _lecturaManager.Crear(new Lectura { IdSensor = sensor.Id, Value = temperaturaHidalgo, FechaHoraCreacion = DateTime.Now.AddDays(dia).AddHours(5) });
+                                            break;
+                                        case 1:
+                                            GeneradorCongruencialLineal(25, out lumenes);
+                                            _lecturaManager.Crear(new Lectura { IdSensor = sensor.Id, Value = temperaturaHidalgo, FechaHoraCreacion = DateTime.Now.AddDays(dia).AddHours(5) });
+                                            break;
+                                        case 2:
+                                            GeneradorCongruencialLineal(25, out cmsUltrasonico);
+                                            _lecturaManager.Crear(new Lectura { IdSensor = sensor.Id, Value = temperaturaHidalgo, FechaHoraCreacion = DateTime.Now.AddDays(dia).AddHours(5) });
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-
-            }
+            });
             return ObtenerInformacionSimulada();
         }
 
@@ -109,7 +107,7 @@ namespace PIoT2020.BIZ
         /// </summary>
         /// <param name="valor">Valor determinante y limitante.</param>
         /// <returns>Verdadero o Falso.</returns>
-        private  bool GeneradorBernoulli(int valor = 50)
+        private bool GeneradorBernoulli(int valor = 50)
         {
             GeneradorCongruencialLineal(valor * 2, out decimal congruencial);
             return 0 <= (int)congruencial && (int)congruencial < valor;//Verdadero o en otro caso Falso.
@@ -121,7 +119,7 @@ namespace PIoT2020.BIZ
         /// <param name="m">Módulo.</param>
         /// <param name="congruencial">Variable aleatoria siguiente semilla.</param>
         /// <returns>Valor aleatorio entre 0 y m - 1.</returns>
-        private  decimal GeneradorCongruencialLineal(decimal m, out decimal congruencial)
+        private decimal GeneradorCongruencialLineal(decimal m, out decimal congruencial)
         {
             Random r = new Random();
             decimal a = r.Next(1, 101);
@@ -135,14 +133,14 @@ namespace PIoT2020.BIZ
         }
         #endregion
 
-        private  List<SimulacionModel> ObtenerInformacionSimulada()
+        private List<SimulacionModel> ObtenerInformacionSimulada()
         {
             List<SimulacionModel> simulacionModels = new List<SimulacionModel>();
             List<Proyecto> proyectos = new List<Proyecto>();
             List<Dispositivo> dispositivos = new List<Dispositivo>();
             List<Sensor> sensores = new List<Sensor>();
             List<Lectura> lecturas = new List<Lectura>();
-            foreach (Usuario usuario in _usuarioManager.ObtenerTodos)
+            Parallel.ForEach(usuarios, usuario =>
             {
                 proyectos = _proyectoManager.ObtenerTodos.Where(p => p.IdUsuario == usuario.Id).ToList();
                 foreach (Proyecto proyecto in proyectos)
@@ -158,7 +156,7 @@ namespace PIoT2020.BIZ
                     }
                 }
                 simulacionModels.Add(new SimulacionModel() { Dispositivos = dispositivos, Lecturas = lecturas, Proyectos = proyectos, Sensores = sensores, Usuario = usuario });
-            }
+            });
             return simulacionModels;
 
         }
