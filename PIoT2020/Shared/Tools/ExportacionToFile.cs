@@ -14,6 +14,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
 using PIoT2020.COMMON.Modelos;
+using System.Linq;
 
 namespace PIoT2020.Shared.Tools
 {
@@ -105,6 +106,33 @@ namespace PIoT2020.Shared.Tools
                 byte[] bytes = memoryStream.ToArray();
                 memoryStream.Close();
                 await js.SaveAs($"PIoT2020{DateTime.Now.ToString()}.pdf", bytes);
+            }
+        }
+
+        public static async Task  ExportarSimulacion(this IJSRuntime js, List<SimulacionModel> simulacion)
+        {
+            using (var memory = new MemoryStream())
+            {
+                using (var writer = new StreamWriter(memory))
+                {
+                    writer.WriteLine($"Sensor,Lectura,Fecha hora creacion");
+                    Parallel.ForEach(simulacion, dato =>
+                    {
+                        foreach (var item in dato.Sensores)
+                        {
+                            var lectura = dato.Lecturas.Where(p => p.IdSensor == item.Id);
+                            foreach (var l in lectura)
+                            {
+                                writer.WriteLine($"{item.Name},{l.Value},{l.FechaHoraCreacion}");
+                                Console.WriteLine($"{item.Name},{l.Value},{l.FechaHoraCreacion}");
+                            }
+
+                        }
+                    });
+                    writer.Close();
+                    var arr = memory.ToArray();
+                    await js.SaveAs($"PIoT2020-Simulacion-{DateTime.Now.ToString()}.csv", arr);
+                }
             }
         }
 

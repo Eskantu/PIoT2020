@@ -13,25 +13,9 @@
     async Task IniciarSimulacion()
     {
         JS.Load();
-        //simulacion = await httpClient.GetJsonAsync< List<SimulacionModel>>($"Simulacion/simular?usuarios={sm.NumeroUsuarios}&dias={sm.Dias}&dispositivosPorUsuario={sm.DispositvosPorUsuario}");
-        List<Usuario> usuarios = await httpClient.GetJsonAsync<List<Usuario>>("Usuario");
-        Console.WriteLine(simulacion.Count());
-        Thread.Sleep(60000);
-        JS.LoadFinished("Simulacion terminada", $"Usuarios creados: {usuarios.Count}");
-        using (var memory = new MemoryStream())
-        {
-            using (var writer = new StreamWriter(memory))
-            {
-                foreach (var exportacion in usuarios)
-                {
-                    writer.WriteLine($"{exportacion.UsuarioName},{exportacion.Password}");
-                }
-                writer.Close();
-                var arr = memory.ToArray();
-                await JS.SaveAs($"Sumulacion-{DateTime.Now.ToString()}.csv", arr);
-            }
-        }
-        //Console.WriteLine( JS.ExportOptions().Result.ToString());
+        simulacion = await  httpClient.GetJsonAsync<List<SimulacionModel>>($"Simulacion/simular?usuarios={sm.NumeroUsuarios}&dias={sm.Dias}&dispositivosPorUsuario={sm.DispositvosPorUsuario}");
+        await JS.ExportarSimulacion(simulacion);
+        JS.LoadFinished("Simulacion terminada", $"Usuarios creados: {simulacion.Count}");
     }
 }
 <div class="jumbotron">

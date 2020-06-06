@@ -111,7 +111,7 @@ namespace PIoT2020.Consultas.Consola
             }
             foreach (var item in lecturasModels)
             {
-                Console.WriteLine($"Sensor: {item.sensor.Name} Lectura tomada: {item.EntidadPrincipal.Value} Fecha de lectura: {item.EntidadPrincipal.FechaHoraCreacion.ToShortDateString()}");
+                //Console.WriteLine($"Sensor: {item.sensor.Name} Lectura tomada: {item.EntidadPrincipal.Value} Fecha de lectura: {item.EntidadPrincipal.FechaHoraCreacion.ToShortDateString()}");
             }
         }
     }

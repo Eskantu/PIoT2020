@@ -16,8 +16,9 @@ namespace PIoT2020.DAL
         private readonly IMongoDatabase _db;
         public GenericRepository()
         {
-            //_client = new MongoClient(new MongoUrl("mongodb://localhost:27017/piot2020?retryWrites=false"));
-            _client = new MongoClient(new MongoUrl("mongodb://eskantu:esklante98@ds016298.mlab.com:16298/piot2020?retryWrites=false"));
+            _client = new MongoClient(new MongoUrl("mongodb://localhost:27017/piot2020?retryWrites=false"));
+            //_client = new MongoClient(new MongoUrl("mongodb://35.202.121.45:27017/piot2020?retryWrites=false"));
+            //_client = new MongoClient(new MongoUrl("mongodb://eskantu:esklante98@ds016298.mlab.com:16298/piot2020?retryWrites=false"));
             _db = _client.GetDatabase("piot2020");
         }
         private IMongoCollection<T> Collection() => _db.GetCollection<T>(typeof(T).Name);

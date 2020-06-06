@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PIoT2020.COMMON.Modelos;
-
+using Microsoft.JSInterop;
 namespace PIoT2020.Server.Controllers
 {
     [Route("[controller]")]
@@ -13,18 +13,18 @@ namespace PIoT2020.Server.Controllers
     public class SimulacionController : ControllerBase
     {
         [HttpGet("simular")]
-        public ActionResult<List<SimulacionModel>> Get(int usuarios,int dias, int dispositivosPorUsuario)
+        public async Task<List<SimulacionModel>> Get(int usuarios,int dias, int dispositivosPorUsuario)
         {
             BIZ.Tools tools = new BIZ.Tools();
             try
             {
                 var r = tools.RealizarSimulacion(usuarios,dias,dispositivosPorUsuario);
-                return Ok(r);
+                return r;
             }
             catch (Exception ex)
             {
 
-                return BadRequest(ex.Message);
+                return null;
             }
         }
     }
